@@ -23,12 +23,15 @@ class WorkoutTemplate {
 }
 
 class ExerciseTemplate {
-  constructor(muscles, types, difficultyMin, difficultyMax, overwriteTime, overwriteSetCount, overwriteSetRestTime) {
+  // Each overwrite* value is null when that parameter is not overridden for this
+  // exercise (the workout-level value is used instead).
+  constructor(muscles, types, difficultyMin, difficultyMax, overwriteTime, overwriteRestTime, overwriteSetCount, overwriteSetRestTime) {
     this.muscles = muscles;
     this.types = types;
     this.difficultyMin = difficultyMin;
     this.difficultyMax = difficultyMax;
     this.overwriteTime = overwriteTime;
+    this.overwriteRestTime = overwriteRestTime;
     this.overwriteSetCount = overwriteSetCount;
     this.overwriteSetRestTime = overwriteSetRestTime;
   }
@@ -180,7 +183,9 @@ function findMatchingExercises(data, selectedMuscles, selectedTypes, minDifficul
     );
     var areTypesMatching =
       selectedTypes.length == 0 ||
-      selectedTypes.every((type) => exercise.types.includes(type));
+      selectedTypes.every((selectedType) =>
+        exercise.types.some((type) => type.name == selectedType)
+      );
     var isDifficultyValid =
       exercise.difficulty >= minDifficulty &&
       exercise.difficulty <= maxDifficulty;
@@ -215,6 +220,31 @@ function buildWorkoutFromTemplate(template, data) {
     template.exerciseTime,
     template.restTime
   );
+}
+
+function difficultyToColor(difficulty) {
+  switch (difficulty) {
+    case 0:
+      return '#94ffff';
+    case 1:
+      return '#daf7a6';
+    case 2:
+      return '#d8f654'
+    case 3:
+      return '#ffc300';
+    case 4:
+      return '#ffae00';
+    case 5:
+      return '#ff4600';
+    case 6:
+      return '#C70039';
+    case 7:
+      return '#900C3F';
+    case 8:
+      return '#000000';
+    default:
+      return '#94ffff';
+  }
 }
 
 function capitalizeWords(inputString) {

@@ -1,34 +1,55 @@
-function difficultyToColor(difficulty) {
-  switch (difficulty) {
-    case 0:
-      return '#94ffff';
-    case 1:
-      return '#daf7a6';
-    case 2:
-      return '#d8f654'
-    case 3:
-      return '#ffc300';
-    case 4:
-      return '#ffae00';
-    case 5:
-      return '#ff4600';
-    case 6:
-      return '#C70039';
-    case 7:
-      return '#900C3F';
-    case 8:
-      return '#000000';
-    default:
-      return '#94ffff';
-  }
-}
-
-// Funktion zum Starten des Trainings (wird vom Startmenü aufgerufen)
+// Open a dialog listing saved workouts so the user can pick which one to run.
 function startWorkout() {
-  showPage(PAGES.Training)
+  var savedWorkouts = loadObject('workouts') || {};
+  var names = Object.keys(savedWorkouts);
+  var list = document.getElementById('workout-list');
+  list.innerHTML = '';
+
+  if (names.length == 0) {
+    var empty = document.createElement('p');
+    empty.textContent = 'No workouts yet. Create one first.';
+    list.appendChild(empty);
+  } else {
+    names.forEach((name) => {
+      var row = document.createElement('div');
+      row.classList.add('workout-row');
+
+      var label = document.createElement('span');
+      label.classList.add('workout-name');
+      label.textContent = name;
+      row.appendChild(label);
+
+      var startButton = document.createElement('button');
+      startButton.textContent = 'Start';
+      startButton.addEventListener('click', () => {
+        showPage(PAGES.Training + '?workout=' + encodeURIComponent(name));
+      });
+      row.appendChild(startButton);
+
+      var editButton = document.createElement('button');
+      editButton.textContent = 'Edit';
+      editButton.classList.add('secondary');
+      editButton.addEventListener('click', () => {
+        showPage(PAGES.CreateTraining + '?workout=' + encodeURIComponent(name));
+      });
+      row.appendChild(editButton);
+
+      list.appendChild(row);
+    });
+  }
+
+  openDialog('select-workout-dialog');
 }
 
 // Funktion für den Knopf 'Plan erstellen' (noch ohne spezifische Funktion)
 function createWorkoutTemplate() {
   showPage(PAGES.CreateTraining)
+}
+
+function openDialog(id) {
+  document.getElementById(id).showModal();
+}
+
+function closeDialog(id) {
+  document.getElementById(id).close();
 }

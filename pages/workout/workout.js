@@ -10,14 +10,19 @@ var currentWorkout = null;
 var currentExerciseIndex = 0;
 
 // Timer / phase state
-var isResting = false;
+var currentPhase = 'exercise'; // 'prepare' | 'exercise' | 'rest'
 var isPaused = false;
 var duration = 0; // current phase length in ms
 var startTime = 0;
 var endTime = 0;
 var pausedAt = 0;
 
+// Spoken-cue guards, reset at the start of every phase
+var lastCountdownSecond = 0;
+var halfwaySpoken = false;
+
 var REST_COLOR = '#94ffff';
+var PREPARE_TIME = 10; // seconds of "get ready" before the first exercise
 
 window.addEventListener('load', function () {
   gifImage = document.getElementById('tutorialVideo');
@@ -35,7 +40,7 @@ window.addEventListener('load', function () {
       return;
     }
 
-    startExercisePhase();
+    startPreparePhase();
   });
 });
 
@@ -57,8 +62,23 @@ function currentExercise() {
   return exercises[currentWorkout.exerciseNames[currentExerciseIndex]];
 }
 
+// 10-second "get ready" countdown before the workout starts. Shows the first
+// exercise so the user can prepare for it.
+function startPreparePhase() {
+  currentPhase = 'prepare';
+
+  var exercise = exercises[currentWorkout.exerciseNames[0]];
+  gifImage.src = exercise.link;
+  gifImage.alt = exercise.name;
+  exerciseLabel.textContent = 'Get ready: ' + exercise.name;
+  progressFill.style.backgroundColor = REST_COLOR;
+
+  speak('Get ready');
+  startTimer(PREPARE_TIME * 1000);
+}
+
 function startExercisePhase() {
-  isResting = false;
+  currentPhase = 'exercise';
 
   var exercise = currentExercise();
   gifImage.src = exercise.link;
@@ -73,7 +93,7 @@ function startExercisePhase() {
 }
 
 function startRestPhase() {
-  isResting = true;
+  currentPhase = 'rest';
 
   exerciseLabel.textContent = 'Rest';
   progressFill.style.backgroundColor = REST_COLOR;
@@ -84,7 +104,9 @@ function startRestPhase() {
 
 // Advance from whatever the current phase is to the next one.
 function advancePhase() {
-  if (!isResting && currentWorkout.restTime > 0) {
+  if (currentPhase === 'prepare') {
+    startExercisePhase(); // prepare -> first exercise, index stays at 0
+  } else if (currentPhase === 'exercise' && currentWorkout.restTime > 0) {
     startRestPhase();
   } else {
     nextExercise();
@@ -113,6 +135,8 @@ function startTimer(durationMs) {
   isPaused = false;
   startTime = Date.now();
   endTime = startTime + duration;
+  lastCountdownSecond = 0;
+  halfwaySpoken = false;
   progressFill.style.width = '0%';
   tick();
 }
@@ -124,11 +148,28 @@ function tick() {
 
   var now = Date.now();
   if (now < endTime) {
-    progressFill.style.width = ((now - startTime) / duration) * 100 + '%';
+    var elapsed = now - startTime;
+    progressFill.style.width = (elapsed / duration) * 100 + '%';
+    announceCues(now, elapsed);
     setTimeout(tick, 50);
   } else {
     progressFill.style.width = '100%';
     advancePhase();
+  }
+}
+
+// Spoken cues during a phase: "halfway there" at the midpoint of an exercise,
+// and a 3-2-1 countdown in the final seconds of every phase.
+function announceCues(now, elapsed) {
+  if (currentPhase === 'exercise' && !halfwaySpoken && elapsed >= duration / 2) {
+    halfwaySpoken = true;
+    speak('halfway there');
+  }
+
+  var secondsLeft = Math.ceil((endTime - now) / 1000);
+  if (secondsLeft >= 1 && secondsLeft <= 3 && secondsLeft !== lastCountdownSecond) {
+    lastCountdownSecond = secondsLeft;
+    speak(String(secondsLeft));
   }
 }
 
@@ -150,8 +191,10 @@ function togglePauseResume() {
 
 function speak(message) {
   if (!('speechSynthesis' in window)) {
+    console.log("no speech")
     return;
   }
+  console.log(message)
   var utterance = new SpeechSynthesisUtterance(message);
   utterance.lang = 'en-US';
   speechSynthesis.speak(utterance);

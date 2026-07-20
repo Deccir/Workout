@@ -29,11 +29,11 @@
 
   <dialog id="exercise-template-dialog">
     <div class="form-field">
-      <select multiple search='true' id="muscle-select"></select>
+      <select multiple search='true' id="muscle-select" placeholder="Muscle group"></select>
     </div>
 
     <div class="form-field">
-      <select multiple search='true' id="type-select"></select>
+      <select multiple search='true' id="type-select" placeholder="Exercise Type"></select>
     </div>
 
     <!-- ToDo: Maybe a small info button with example exercises for each difficulty -->
@@ -55,21 +55,44 @@
 
       <div class="accordion" id="optional-exercise-inputs">
         <div class="content">
-          <div class="form-field">
-            <label for="overwrite-exercise-time-input">overwrite how long this exercise should be performed for (in
-              seconds):</label>
+          <p class="hint">Enable a parameter to override the workout-level value for this exercise.</p>
+
+          <div class="form-field disabled" id="overwrite-exercise-time-field">
+            <label class="overwrite-toggle">
+              <input type="checkbox" id="overwrite-exercise-time-enabled"
+                onclick="toggleOverwriteField('overwrite-exercise-time')">
+              Overwrite exercise time (in seconds)
+            </label>
             <input type="number" id="overwrite-exercise-time-input" class="form-input" min="10" value="40"
-              defaultvalue="40">
+              defaultvalue="40" disabled>
           </div>
 
-          <div class="form-field">
-            <label for="overwrite-set-count-input">overwrite how many sets of this exercise should be done:</label>
-            <input type="number" id="overwrite-set-count-input" class="form-input" min="1" value="1" defaultvalue="1"
-              onchange="setOverwriteCountUpdated(event)">
+          <div class="form-field disabled" id="overwrite-rest-time-field">
+            <label class="overwrite-toggle">
+              <input type="checkbox" id="overwrite-rest-time-enabled"
+                onclick="toggleOverwriteField('overwrite-rest-time')">
+              Overwrite rest time between exercises (in seconds)
+            </label>
+            <input type="number" id="overwrite-rest-time-input" class="form-input" min="1" value="180"
+              defaultvalue="180" disabled>
+          </div>
+
+          <div class="form-field disabled" id="overwrite-set-count-field">
+            <label class="overwrite-toggle">
+              <input type="checkbox" id="overwrite-set-count-enabled"
+                onclick="toggleOverwriteField('overwrite-set-count')">
+              Overwrite number of sets
+            </label>
+            <input type="number" id="overwrite-set-count-input" class="form-input" min="1" value="1"
+              defaultvalue="1" disabled>
           </div>
 
           <div class="form-field disabled" id="overwrite-set-rest-time-field">
-            <label for="overwrite-set-rest-time-input">overwrite how long to rest between sets (in seconds):</label>
+            <label class="overwrite-toggle">
+              <input type="checkbox" id="overwrite-set-rest-time-enabled"
+                onclick="toggleOverwriteField('overwrite-set-rest-time')">
+              Overwrite rest time between sets (in seconds)
+            </label>
             <input type="number" id="overwrite-set-rest-time-input" class="form-input" min="1" value="120"
               defaultvalue="120" disabled>
           </div>
@@ -94,7 +117,7 @@
 
     <div class="form-field">
       <label for="rest-time-input">how long to rest between exercises (in seconds):</label>
-      <input type="number" id="rest-time-input" class="form-input" min="1" value="90" defaultvalue="90">
+      <input type="number" id="rest-time-input" class="form-input" min="1" value="180" defaultvalue="180">
     </div>
 
     <div class="form-field">
