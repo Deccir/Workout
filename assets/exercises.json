@@ -1,0 +1,614 @@
+[
+    {
+        "name": "Wrist Flexion",
+        "muscles": ["wrist"],
+        "difficulty": 0,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40593214",
+        "types": ["mobility", "stretch"]
+    },
+    {
+        "name": "Wrist Circles",
+        "muscles": ["wrist"],
+        "difficulty": 0,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40593160",
+        "types": ["mobility", "stretch"]
+    },
+    {
+        "name": "Easy Bridge",
+        "muscles": ["full-back"],
+        "difficulty": 1,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40603831",
+        "types": ["strength", "yoga"]
+    },
+    {
+        "name": "Cat Cow",
+        "muscles": ["full-back"],
+        "difficulty": 0,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595605",
+        "types": ["mobility", "yoga"]
+    },
+    {
+        "name": "Hip Figure 8",
+        "muscles": ["hips"],
+        "difficulty": 1,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595617",
+        "types": ["mobility"]
+    },
+    {
+        "name": "Crouch Rocks",
+        "muscles": ["hips", "knees", "ankles"],
+        "difficulty": 3,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595647",
+        "types": ["mobility", "stretch"]
+    },
+    {
+        "name": "Frog Rocks",
+        "muscles": ["hips"],
+        "difficulty": 1,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595675",
+        "types": ["mobility", "stretch", "yoga"]
+    },
+    {
+        "name": "Elbow Pit Rotation",
+        "muscles": ["elbows"],
+        "difficulty": 0,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40593378",
+        "types": ["mobility", "stretch"]
+    },
+    {
+        "name": "Stick Shoulder Extension",
+        "muscles": ["shoulders"],
+        "difficulty": 2,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595594",
+        "types": ["mobility"]
+    },
+    {
+        "name": "Sitting Hip Rotations",
+        "muscles": ["hips"],
+        "difficulty": 0,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595618",
+        "types": ["mobility"]
+    },
+    {
+        "name": "Foot Tilt Walk",
+        "muscles": ["ankles"],
+        "difficulty": 2,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595652",
+        "types": ["mobility"]
+    },
+    {
+        "name": "Lunge and Reach",
+        "muscles": ["hips", "shoulders"],
+        "difficulty": 2,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595627",
+        "types": ["mobility"]
+    },
+    {
+        "name": "Wrist Shift",
+        "muscles": ["wrist"],
+        "difficulty": 0,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40593256",
+        "types": ["mobility", "stretch"]
+    },
+    {
+        "name": "Dog To Pike",
+        "muscles": ["lower-back", "shoulders", "hips"],
+        "difficulty": 2,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595595",
+        "types": ["mobility", "yoga"]
+    },
+    {
+        "name": "Hip Pendulum",
+        "muscles": ["hips"],
+        "difficulty": 1,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595622",
+        "types": ["mobility"]
+    },
+    {
+        "name": "Standing Heel Circles",
+        "muscles": ["knees"],
+        "difficulty": 2,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595623",
+        "types": ["mobility"]
+    },
+    {
+        "name": "Lunge to Kneeling Pistol",
+        "muscles": ["hips", "knees"],
+        "difficulty": 1,
+        "link": "https://www.calimove.com/courses/1467532/lectures/43851746",
+        "types": ["mobility"]
+    },
+    {
+        "name": "Stick Dislocation",
+        "muscles": ["shoulders"],
+        "difficulty": 2,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595598",
+        "types": ["mobility"]
+    },
+    {
+        "name": "Figure 4 Sit and Switch",
+        "muscles": ["hips"],
+        "difficulty": 1,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595619",
+        "types": ["mobility"]
+    },
+    {
+        "name": "Crab Walk Square",
+        "muscles": ["full-back", "legs-pull"],
+        "difficulty": 3,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595593",
+        "types": ["strength"]
+    },
+    {
+        "name": "Eye Circles",
+        "muscles": ["eyes"],
+        "difficulty": 0,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595671",
+        "types": ["focus"]
+    },
+    {
+        "name": "Wrist Figure 8",
+        "muscles": ["wrist"],
+        "difficulty": 0,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40593343",
+        "types": ["mobility"]
+    },
+    {
+        "name": "Easy Bridge Rocks",
+        "muscles": ["full-back", "legs-pull"],
+        "difficulty": 2,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40594398",
+        "types": ["strength"]
+    },
+    {
+        "name": "Passive Hang",
+        "muscles": ["shoulders", "full-back"],
+        "difficulty": 1,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595600",
+        "types": ["mobility", "stretch"]
+    },
+    {
+        "name": "Standing Scale touch circle",
+        "muscles": ["hips", "legs"],
+        "difficulty": 2,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595629",
+        "types": ["mobility", "yoga", "balance"]
+    },
+    {
+        "name": "Deep Squat Single Leg Drop",
+        "muscles": ["hips"],
+        "difficulty": 2,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595639",
+        "types": ["mobility"]
+    },
+    {
+        "name": "Eye Compass",
+        "muscles": ["eyes"],
+        "difficulty": 0,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595673",
+        "types": ["focus"]
+    },
+    {
+        "name": "Standing Slide Circle",
+        "muscles": ["hips", "legs"],
+        "difficulty": 2,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595631",
+        "types": ["mobility", "balance"]
+    },
+    {
+        "name": "Elbow Side Circles",
+        "muscles": ["elbows"],
+        "difficulty": 0,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40593510",
+        "types": ["mobility"]
+    },
+    {
+        "name": "Easy Bridge Circles",
+        "muscles": ["shoulders", "full-back", "arms-push", "legs-pull"],
+        "difficulty": 3,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40594872",
+        "types": ["mobility", "balance"]
+    },
+    {
+        "name": "Back Bridge Pushup",
+        "muscles": ["full-back", "shoulders", "arms-push", "legs"],
+        "difficulty": 6,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595610",
+        "types": ["strength", "mobility"]
+    },
+    {
+        "name": "Knee Stance Flow",
+        "muscles": ["full-back", "hips", "knees"],
+        "difficulty": 2,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595667",
+        "types": ["mobility", "yoga"]
+    },
+    {
+        "name": "Wrist Backside Circles",
+        "muscles": ["wrist"],
+        "difficulty": 4,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40593178",
+        "types": ["mobility", "stretch"]
+    },
+    {
+        "name": "Dog and Pike Reach",
+        "muscles": ["shoulders", "full-back", "hips"],
+        "difficulty": 3,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595596",
+        "types": ["mobility", "strength", "yoga"]
+    },
+    {
+        "name": "Horse Stance",
+        "muscles": ["hips", "legs"],
+        "difficulty": 3,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595635",
+        "types": ["mobility", "strength"]
+    },
+    {
+        "name": "Knee to Ground Lunges",
+        "muscles": ["knees", "hips", "ankles"],
+        "difficulty": 6,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595649",
+        "types": ["strength", "mobility", "balance"]
+    },
+    {
+        "name": "Frog single lifts",
+        "muscles": ["hips"],
+        "difficulty": 1,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595676",
+        "types": ["mobility", "stretch"]
+    },
+    {
+        "name": "Passive to active Hang",
+        "muscles": ["shoulders", "grip"],
+        "difficulty": 2,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595601",
+        "types": ["strength", "mobility", "stretch"]
+    },
+    {
+        "name": "Kimura",
+        "muscles": ["shoulders", "elbows"],
+        "difficulty": 1,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40593515",
+        "types": ["mobility"]
+    },
+    {
+        "name": "Back Bridge Circle",
+        "muscles": ["shoulders", "full-back"],
+        "difficulty": 6,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40594873",
+        "types": ["strength", "mobility", "balance"]
+    },
+    {
+        "name": "Hollow Rolls",
+        "muscles": ["full-back", "shoulders"],
+        "difficulty": 3,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595616",
+        "types": ["mobility", "balance"]
+    },
+    {
+        "name": "Knee Stance Flow Variation",
+        "muscles": ["full-back", "knees", "ankles"],
+        "difficulty": 3,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595668",
+        "types": ["mobility", "strength", "yoga", "balance"]
+    },
+    {
+        "name": "Archer Scapula Raise",
+        "muscles": ["shoulders", "grip", "upper-back"],
+        "difficulty": 3,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595602",
+        "types": ["strength"]
+    },
+    {
+        "name": "Back Bridge Walk",
+        "muscles": ["shoulders", "full-back"],
+        "difficulty": 7,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595612",
+        "types": ["strength", "mobility", "balance"]
+    },
+    {
+        "name": "3d Triangle",
+        "muscles": ["eyes"],
+        "difficulty": 0,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595674",
+        "types": ["focus"]
+    },
+    {
+        "name": "Lying Stick Dislocation",
+        "muscles": ["shoulders"],
+        "difficulty": 0,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595599",
+        "types": ["mobility", "stretch"]
+    },
+    {
+        "name": "Dancing Dog",
+        "muscles": ["shoulders", "hips", "full-back"],
+        "difficulty": 3,
+        "link": "https://www.calimove.com/courses/1467532/lectures/40595597",
+        "types": ["mobility", "strength", "balance", "yoga"]
+    },
+    {
+        "name": "Incline Push up",
+        "muscles": ["chest", "arms-push"],
+        "difficulty": 3,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Push up",
+        "muscles": ["chest", "arms-push"],
+        "difficulty": 4,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Decline Push up",
+        "muscles": ["chest", "arms-push"],
+        "difficulty": 5,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Diamond Push up",
+        "muscles": ["arms-push", "chest"],
+        "difficulty": 4,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Wide Push up",
+        "muscles": ["chest", "arms-push"],
+        "difficulty": 4,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Pike Push up",
+        "muscles": ["shoulders", "arms-push"],
+        "difficulty": 4,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Archer Push up",
+        "muscles": ["chest", "arms-push"],
+        "difficulty": 5,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Clap Push up",
+        "muscles": ["chest", "arms-push"],
+        "difficulty": 5,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Pull up",
+        "muscles": ["upper-back", "arms-pull", "grip"],
+        "difficulty": 6,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Commando Pull up",
+        "muscles": ["arms-pull", "full-back", "grip"],
+        "difficulty": 7,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Towel Pull up",
+        "muscles": ["arms-pull", "full-back", "grip"],
+        "difficulty": 7,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Chin up",
+        "muscles": ["arms-pull", "full-back", "grip"],
+        "difficulty": 6,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Wrist lifts",
+        "muscles": ["wrist"],
+        "difficulty": 0,
+        "link": "",
+        "types": ["stretch", "mobility"],
+        "anmerkung": "first exersise of wrist routine"
+    },
+    {
+        "name": "Wrist lifts side to side",
+        "muscles": ["wrist"],
+        "difficulty": 0,
+        "link": "",
+        "types": ["stretch", "mobility"],
+        "anmerkung": "second exersise of wrist routine"
+    },
+    {
+        "name": "Wrist lean side to side",
+        "muscles": ["wrist"],
+        "difficulty": 1,
+        "link": "",
+        "types": ["stretch", "mobility"],
+        "anmerkung": "thrid exersise of wrist routine"
+    },
+    {
+        "name": "Wrist Backside Rocks",
+        "muscles": ["wrist"],
+        "difficulty": 2,
+        "link": "",
+        "types": ["stretch", "mobility"]
+    },
+    {
+        "name": "Wrist Backside Elbowpit rotations",
+        "muscles": ["wrist", "elbows"],
+        "difficulty": 3,
+        "link": "",
+        "types": ["stretch", "mobility"]
+    },
+    {
+        "name": "Spiderman wrist stretch",
+        "muscles": ["wrist"],
+        "difficulty": 1,
+        "link": "",
+        "types": ["stretch", "mobility"]
+    },
+    {
+        "name": "Squat",
+        "muscles": ["legs-push"],
+        "difficulty": 2,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Bulgarian split Squat",
+        "muscles": ["legs-push"],
+        "difficulty": 3,
+        "link": "",
+        "types": ["strength", "balance"]
+    },
+    {
+        "name": "One legged Squat",
+        "muscles": ["legs-push"],
+        "difficulty": 4,
+        "link": "",
+        "types": ["strength", "balance"]
+    },
+    {
+        "name": "Pistol Squat",
+        "muscles": ["legs-push"],
+        "difficulty": 6,
+        "link": "",
+        "types": ["strength", "balance"]
+    },
+    {
+        "name": "Nordic Curls",
+        "muscles": ["legs-pull"],
+        "difficulty": 3,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Reverse Nordic Curls",
+        "muscles": ["legs-push", "knees"],
+        "difficulty": 5,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Calf Raises",
+        "muscles": ["calves"],
+        "difficulty": 1,
+        "link": "",
+        "types": ["strength", "balance"]
+    },
+    {
+        "name": "Deep Knee Bend",
+        "muscles": ["legs-push", "knees"],
+        "difficulty": 2,
+        "link": "",
+        "types": ["strength", "balance"]
+    },
+    {
+        "name": "Shoulder Tap",
+        "muscles": ["arms-push", "shoulders"],
+        "difficulty": 1,
+        "link": "",
+        "types": ["strength", "balance"]
+    },
+    {
+        "name": "Back widow",
+        "muscles": ["upper-back"],
+        "difficulty": 1,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Back widow T-form",
+        "muscles": ["upper-back", "shoulders"],
+        "difficulty": 1,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Snow angel of death",
+        "muscles": ["full-back", "shoulders"],
+        "difficulty": 1,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Long Leg Marches",
+        "muscles": ["full-back", "legs-pull"],
+        "difficulty": 2,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Plank ups",
+        "muscles": ["arms-push", "shoulders"],
+        "difficulty": 2,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Side Plank Lifts",
+        "muscles": ["abs-side"],
+        "difficulty": 0,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Sissy Squat",
+        "muscles": ["legs-push", "knees"],
+        "difficulty": 6,
+        "link": "",
+        "types": ["strength", "balance"]
+    },
+    {
+        "name": "One legged Heel to Butt Squat",
+        "muscles": ["legs-push"],
+        "difficulty": 5,
+        "link": "",
+        "types": ["strength", "balance"]
+    },
+    {
+        "name": "Duck Walk",
+        "muscles": ["legs", "hips", "knees"],
+        "difficulty": 1,
+        "link": "",
+        "types": ["strength", "mobility"]
+    },
+    {
+        "name": "Cossack Squats",
+        "muscles": ["legs", "hips"],
+        "difficulty": 3,
+        "link": "",
+        "types": ["strength", "mobility"]
+    },
+    {
+        "name": "Box Jumps",
+        "muscles": ["legs"],
+        "difficulty": 0,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Alternating Lunge Jumps",
+        "muscles": ["legs"],
+        "difficulty": 2,
+        "link": "",
+        "types": ["strength"]
+    },
+    {
+        "name": "Jump Rope",
+        "muscles": ["legs"],
+        "difficulty": 1,
+        "link": "",
+        "types": ["strength"]
+    }
+]

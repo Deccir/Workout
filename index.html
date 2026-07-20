@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <base href=".">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="#">
+
+  <title>Deccirs Workout Shuffle</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="main.js"></script>
+  <script src="loader.js"></script>
+  <script src="navigation.js"></script>
+  <script src="toaster.js"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then((registration) => {
+          console.log('Service Worker registered with scope:', registration.scope);
+        })
+        .catch((error) => {
+          console.error('Service Worker registration failed:', error);
+        });
+    }
+  </script>
+</head>
+
+<body class="dark-theme">
+  <div id="toaster-container" class="toaster-container"></div>
+  <div id="startMenu">
+    <button onclick="startWorkout()">Start Workout</button>
+    <button onclick="createWorkoutTemplate()">Create Workout</button>
+  </div>
+
+</body>
+
+</html>

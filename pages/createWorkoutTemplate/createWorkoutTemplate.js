@@ -1,0 +1,422 @@
+var preparedExerciseTemplates = {};
+var acceptedOnce = false;
+var editRowId = null;
+
+//#region initialize
+
+window.addEventListener("load", () => {
+  getDataPromise()
+    .then((data) => {
+      fillMuscleSelection(data.muscles);
+      fillTypeSelection(data.types);
+    })
+    .then(() => initializeMultiSelectDropdown());
+
+  var min = document.getElementById("min-difficulty");
+  min.addEventListener("change", updateMatchingExercises);
+
+  var max = document.getElementById("max-difficulty");
+  max.addEventListener("change", updateMatchingExercises);
+
+  var muscleSelect = document.getElementById("muscle-select");
+  resetSelectedValues(muscleSelect);
+  muscleSelect.addEventListener("change", updateMatchingExercises);
+
+  var typeSelect = document.getElementById("type-select");
+  resetSelectedValues(typeSelect);
+  typeSelect.addEventListener("change", updateMatchingExercises);
+
+  document.getElementById("exercise-template-dialog")
+    .addEventListener("close", () => {
+      resetRowDialog();
+    });
+
+  Array.from(document.querySelectorAll('input[type="number"]'))
+    .forEach(input => input.addEventListener("change", validateNumberInput));
+});
+
+function fillMuscleSelection(muscles) {
+  var container = document.getElementById("muscle-select");
+
+  muscles.forEach((muscle) => {
+    var option = document.createElement("option");
+    option.value = muscle.name;
+    option.textContent = capitalizeWords(muscle.name);
+    container.appendChild(option);
+  });
+}
+
+function fillTypeSelection(types) {
+  var container = document.getElementById("type-select");
+
+  types.forEach((type) => {
+    var option = document.createElement("option");
+    option.value = type.name;
+    option.textContent = capitalizeWords(type.name);
+    container.appendChild(option);
+  });
+}
+
+//#endregion
+
+function confirmExerciseRowInput() {
+  acceptedOnce = true;
+  if (validateExerciseRowInput() == false) {
+    console.warn("error");
+    return;
+  }
+
+  var selectedMuscles = getSelectValuesBySelectId("muscle-select");
+  var selectedTypes = getSelectValuesBySelectId("type-select");
+  var minDifficulty = parseInt(document.getElementById("min-difficulty").value);
+  var maxDifficulty = parseInt(document.getElementById("max-difficulty").value);
+
+  getMatchingExercisesPromise(
+    selectedMuscles,
+    selectedTypes,
+    minDifficulty,
+    maxDifficulty
+  ).then((matchingExercises) => {
+    if (matchingExercises != null && matchingExercises.length > 0) {
+      if (editRowId != null) {
+        var exerciseTemplate = preparedExerciseTemplates[editRowId];
+        exerciseTemplate.muscles = selectedMuscles;
+        exerciseTemplate.types = selectedTypes;
+        exerciseTemplate.difficultyMin = minDifficulty;
+        exerciseTemplate.difficultyMax = maxDifficulty;
+
+        // ToDo: update row
+      } else {
+        var exerciseTemplate = new ExerciseTemplate(
+          selectedMuscles,
+          selectedTypes,
+          minDifficulty,
+          maxDifficulty
+        );
+
+        var id = "ex_id_" + new Date().getTime();
+        preparedExerciseTemplates[id] = exerciseTemplate;
+
+        var container = document.getElementById("container");
+
+        var newRow = document.createElement("div");
+        newRow.id = id;
+        newRow.classList.add("row");
+
+        // ToDo: create proper html row
+        // ToDo: make it movable / either drag and drop or select 2 that change (like ttgl in extra dialog)
+
+        var rotesQuadrat = document.createElement("div");
+        rotesQuadrat.textContent = id;
+        rotesQuadrat.classList.add("rotes-quadrat");
+        rotesQuadrat.style.backgroundColor = "#" + id.slice(-6);
+        newRow.appendChild(rotesQuadrat);
+
+        var deleteButton = document.createElement("button");
+        deleteButton.classList.add("delete-button");
+        deleteButton.textContent = "Remove";
+        deleteButton.addEventListener("click", function () {
+          container.removeChild(newRow);
+          delete preparedExerciseTemplates[id];
+          document.getElementById("save-workout-button").disabled =
+            Object.values(preparedExerciseTemplates).length == 0;
+        });
+        newRow.appendChild(deleteButton);
+
+        var editButton = document.createElement("button");
+        editButton.classList.add("edit-button");
+        editButton.textContent = "Edit";
+        editButton.addEventListener("click", function () {
+          editExerciseRowInput(exerciseTemplate, newRow);
+        });
+        newRow.appendChild(editButton);
+
+        var moveDownButton = document.createElement("button");
+        moveDownButton.classList.add("move-down-button");
+        moveDownButton.textContent = "Move Down";
+        moveDownButton.addEventListener("click", function () {
+          const nextRow = newRow.nextElementSibling;
+          if (nextRow) {
+            container.insertBefore(nextRow, newRow);
+            setMoveButtons(nextRow);
+            setMoveButtons(newRow);
+          }
+        });
+        moveDownButton.disabled = true;
+        newRow.appendChild(moveDownButton);
+
+        var moveUpButton = document.createElement("button");
+        moveUpButton.classList.add("move-up-button");
+        moveUpButton.textContent = "Move Up";
+        moveUpButton.addEventListener("click", function () {
+          const previousRow = newRow.previousElementSibling;
+          if (previousRow) {
+            container.insertBefore(newRow, previousRow);
+            setMoveButtons(previousRow);
+            setMoveButtons(newRow);
+          }
+        });
+        moveUpButton.disabled = container.childNodes.length == 0;
+        newRow.appendChild(moveUpButton);
+
+        if (container.childNodes.length > 0) {
+          container.lastChild.querySelector(
+            ".move-down-button"
+          ).disabled = false;
+        }
+
+        container.appendChild(newRow);
+        document.getElementById("save-workout-button").disabled = false;
+      }
+      closeDialog("exercise-template-dialog");
+    } else {
+      console.log("No matches");
+      // Toaster: Show error: no exercies match the conditions
+    }
+  });
+}
+
+function setMoveButtons(row) {
+  row.querySelector(".move-up-button").disabled =
+    row.previousElementSibling == null;
+  row.querySelector(".move-down-button").disabled =
+    row.nextElementSibling == null;
+}
+
+function validateExerciseRowInput() {
+  var hasError = false;
+
+  if (acceptedOnce == true) {
+    var selectedMusclesDropdown = document.getElementById(
+      "muscle-select-dropdown"
+    );
+    var selectedMuscles = getSelectValuesBySelectId("muscle-select");
+    if (selectedMuscles == null || selectedMuscles.length == 0) {
+      hasError = true;
+      selectedMusclesDropdown.classList.add("has-error");
+    } else {
+      selectedMusclesDropdown.classList.remove("has-error");
+    }
+  }
+
+  if (acceptedOnce == true) {
+    var selectedTypesDropdown = document.getElementById("type-select-dropdown");
+    var selectedTypes = getSelectValuesBySelectId("type-select");
+    if (selectedTypes == null) {
+      hasError = true;
+      selectedTypesDropdown.classList.add("has-error");
+    } else {
+      selectedTypesDropdown.classList.remove("has-error");
+    }
+  }
+
+  var minDifficultyElement = document.getElementById("min-difficulty");
+  var maxDifficultyElement = document.getElementById("max-difficulty");
+  var minDifficulty = minDifficultyElement.value;
+  var maxDifficulty = maxDifficultyElement.value;
+
+  if (minDifficulty == null || minDifficulty > maxDifficulty) {
+    hasError = true;
+    minDifficultyElement.classList.add("has-error");
+  } else {
+    minDifficultyElement.classList.remove("has-error");
+  }
+
+  if (maxDifficulty == null || minDifficulty > maxDifficulty) {
+    hasError = true;
+    maxDifficultyElement.classList.add("has-error");
+  } else {
+    maxDifficultyElement.classList.remove("has-error");
+  }
+
+  return hasError == false;
+}
+
+function updateMatchingExercises() {
+  var selectedMuscles = getSelectValuesBySelectId("muscle-select");
+  var selectedTypes = getSelectValuesBySelectId("type-select");
+  var minDifficulty = document.getElementById("min-difficulty").value;
+  var maxDifficulty = document.getElementById("max-difficulty").value;
+
+  validateExerciseRowInput();
+
+  getMatchingExercisesPromise(
+    selectedMuscles,
+    selectedTypes,
+    minDifficulty,
+    maxDifficulty
+  ).then((matchingExercises) => {
+    matchingExercises ??= [];
+    document.getElementById("matching-exercises").textContent =
+      "" + matchingExercises.length;
+    document.getElementById("confirm-exercise-button").disabled =
+      matchingExercises.length == 0;
+  });
+}
+
+function editExerciseRowInput(exerciseTemplate, rowElement) {
+  editRowId = rowElement.id;
+  document.getElementById("min-difficulty").value =
+    exerciseTemplate.difficultyMin;
+  document.getElementById("max-difficulty").value =
+    exerciseTemplate.difficultyMax;
+  setSelectedValues(
+    document.getElementById("muscle-select"),
+    exerciseTemplate.muscles
+  );
+  setSelectedValues(
+    document.getElementById("type-select"),
+    exerciseTemplate.types
+  );
+  updateMatchingExercises();
+
+  openDialog("exercise-template-dialog");
+}
+
+function getMatchingExercisesPromise(
+  selectedMuscles,
+  selectedTypes,
+  minDifficulty,
+  maxDifficulty
+) {
+  if (
+    selectedMuscles.length == 0 ||
+    minDifficulty > maxDifficulty ||
+    minDifficulty < 0
+  ) {
+    return Promise.resolve();
+  }
+
+  return getDataPromise().then((data) =>
+    Object.values(data.exercises).filter((exercise) => {
+      var areMusclesMatching = selectedMuscles.every((selectedMuscle) => exercise.muscles.some(
+        (muscle) =>
+          muscle.name == selectedMuscle ||
+          (muscle.partOf != null && muscle.partOf.includes(selectedMuscle))
+      ));
+      var areTypesMatching =
+        selectedTypes.length == 0 ||
+        selectedTypes.every((type) => exercise.types.includes(type));
+      var isDifficultyValid =
+        exercise.difficulty >= minDifficulty &&
+        exercise.difficulty <= maxDifficulty;
+      return areMusclesMatching && areTypesMatching && isDifficultyValid;
+    })
+  ).then(data => { console.log(data); return data; });
+}
+
+function saveWorkout() {
+  var nameInput = document.getElementById("name-input");
+  var enteredName = nameInput.value.trim();
+
+  if (enteredName == "") {
+    const currentTimestamp = new Date().getTime();
+    const currentDate = new Date(currentTimestamp);
+    const targetDate = new Date(2024, 0, 1);
+    const timeDifference = currentDate - targetDate;
+    enteredName = "Workout " + timeDifference;
+  }
+
+  var existingWorkouts = loadObject("workouts");
+  if (existingWorkouts == null) {
+    existingWorkouts = {};
+  }
+
+  if (existingWorkouts.hasOwnProperty(enteredName)) {
+    console.warn("The name already exists.");
+    nameInput.classList.add("has-error");
+    // Toaster: show error to user
+    return;
+  }
+  nameInput.classList.remove("has-error");
+
+  var container = document.getElementById("container");
+  var orderedExerciseTemplates = Array.from(container.childNodes).map(
+    (child) => preparedExerciseTemplates[child.id]
+  );
+
+  existingWorkouts[enteredName] = new WorkoutTemplate(
+    enteredName,
+    orderedExerciseTemplates,
+    parseInt(document.getElementById("exercise-time-input").value),
+    parseInt(document.getElementById("rest-time-input").value),
+    parseInt(document.getElementById("set-count-input").value),
+    parseInt(document.getElementById("set-rest-time-input").value),
+    parseInt(document.getElementById("circuit-count-input").value)
+  );
+
+  console.log(existingWorkouts[enteredName]);
+
+  saveObject("workouts", existingWorkouts);
+  closeDialog("save-dialog");
+
+  // ToDo: navigate to workout list
+}
+
+function setCountUpdated(event) {
+  const input = event.target;
+  const value = parseInt(input.value);
+  if (isNaN(value) || value == 1) {
+    document.getElementById('set-rest-time-field').classList.add('disabled');
+    document.getElementById('set-rest-time-input').disabled = true;
+  } else {
+    document.getElementById('set-rest-time-field').classList.remove('disabled');
+    document.getElementById('set-rest-time-input').disabled = false;
+  }
+}
+
+function setOverwriteCountUpdated(event) {
+  const input = event.target;
+  const value = parseInt(input.value);
+  if (isNaN(value) || value == 1) {
+    document.getElementById('overwrite-set-rest-time-field').classList.add('disabled');
+    document.getElementById('overwrite-set-rest-time-input').disabled = true;
+  } else {
+    document.getElementById('overwrite-set-rest-time-field').classList.remove('disabled');
+    document.getElementById('overwrite-set-rest-time-input').disabled = false;
+  }
+}
+
+//#region dialog helper
+
+function resetRowDialog() {
+  resetSelectedValues(document.getElementById("muscle-select"));
+  resetSelectedValues(document.getElementById("type-select"));
+  document.getElementById("min-difficulty").value = 0;
+  document.getElementById("max-difficulty").value = 8;
+  acceptedOnce = false;
+  editRowId = null;
+  updateMatchingExercises();
+}
+
+function openDialog(id) {
+  document.getElementById(id).showModal();
+}
+
+function closeDialog(id) {
+  document.getElementById(id).close();
+}
+
+//#endregion
+
+//#region helper
+
+function validateNumberInput(event) {
+  const input = event.target;
+  const value = parseInt(input.value);
+  const min = parseInt(input.min || 0);
+
+  if (isNaN(value)) {
+    input.value = parseInt(input.getAttribute("defaultvalue")) || min;
+  } else {
+    const max = parseInt(input.max || Number.MAX_SAFE_INTEGER);
+
+    if (value < min) {
+      input.value = min;
+    } else if (value > max) {
+      input.value = max;
+    }
+  }
+}
+
+//#endregion

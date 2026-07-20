@@ -1,0 +1,27 @@
+.toaster-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+
+  .toast {
+    padding: 10px 20px;
+    border-radius: 5px;
+
+    &.success {
+      background-color: #32cd32;
+      color: white;
+    }
+
+    &.warning {
+      background-color: orange;
+      color: white;
+    }
+
+    &.error {
+      background-color: #aa0000;
+      color: white;
+    }
+  }
+}

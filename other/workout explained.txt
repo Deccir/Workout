@@ -1,0 +1,35 @@
+workout explained:
+
+{
+    "name": "",
+    "muscles": [""],
+    "difficulty": "",
+    "link": "",
+    "types": [""]
+},
+
+{
+    "difficulty_rating": [
+        { "difficulty": 0, "example": "mostly stretches and mobility that can be made super easy" }
+        { "difficulty": 1, "example": "" } // very easy
+        { "difficulty": 2, "example": "" } // easy
+        { "difficulty": 3, "example": "Crab Walk Square" } // easy-medium
+        { "difficulty": 4, "example": "Push Ups" } // medium
+        { "difficulty": 5, "example": "" } // medium-hard
+        { "difficulty": 6, "example": "Pull Ups, Pistol Squats" } // hard
+        { "difficulty": 7, "example": "" } // very hard
+        { "difficulty": 8, "example": "" } // beyond
+    ]
+}
+
+[
+    {
+        "name": "Bridge",
+        "exercises": ["Bridge", "Crab Walk Square", "Easy Bridge Rocks", "Easy Bridge Circles"]
+    },
+    {
+        "name": "Shoulder Mobility",
+        "exercises": ["Stick Shoulder Extension", "Stick Dislocation"]
+    }
+]
+

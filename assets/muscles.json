@@ -1,0 +1,79 @@
+[
+    {
+        "name": "wrist"
+    },
+    {
+        "name": "back",
+        "sections": [
+            {
+                "name": "lower-back"
+            },
+            {
+                "name": "upper-back"
+            },
+            {
+                "name": "full-back"
+            }
+        ]
+    },
+    {
+        "name": "legs",
+        "sections": [
+            {
+                "name": "legs-pull"
+            },
+            {
+                "name": "legs-push"
+            }
+        ]
+    },
+    {
+        "name": "arms",
+        "sections": [
+            {
+                "name": "arms-pull"
+            },
+            {
+                "name": "arms-push"
+            }
+        ]
+    },
+    {
+        "name": "abs",
+        "sections": [
+            {
+                "name": "abs-side"
+            },
+            {
+                "name": "abs-front"
+            }
+        ]
+    },
+    {
+        "name": "chest"
+    },
+    {
+        "name": "calves"
+    },
+    {
+        "name": "hips"
+    },
+    {
+        "name": "knees"
+    },
+    {
+        "name": "ankles"
+    },
+    {
+        "name": "elbows"
+    },
+    {
+        "name": "shoulders"
+    },
+    {
+        "name": "eyes"
+    },
+    {
+        "name": "grip"
+    }
+]

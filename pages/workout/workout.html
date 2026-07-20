@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <base href=".">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="#">
+
+  <title>Workout Shuffle - Workout</title>
+  <link rel="stylesheet" href="workout.css">
+  <script src="../navigation.js"></script>
+  <script src="../loader.js"></script>
+  <script src="../toaster.js"></script>
+  <script src="workout.js"></script>
+</head>
+
+<body class="dark-theme">
+  <div id="toaster-container" class="toaster-container"></div>
+  <h1>Your Workout</h1>
+  <div id="progressBar">
+    <div id="progressFill"></div>
+  </div>
+  <div>
+    <img id="tutorialVideo" alt="Tutorial Video">
+  </div>
+  <div>
+    <button onclick="previousExercise()">Go Back</button>
+    <button onclick="nextExercise()">Next</button>
+    <button onclick="togglePauseResume()">Pause</button>
+    <button onclick="cancelTraining()">Cancel Workout</button>
+  </div>
+
+</body>
+
+</html>

@@ -1,0 +1,60 @@
+@import url(lib/js-multiselect-dropdown-main/multi-select-dropdown.css);
+@import url(lib/toaster/toaster.css);
+@import url(lib/accordion/accordion.css);
+
+* {
+  box-sizing: border-box;
+
+  --color-background: #333333;
+  --color-border: lightgray;
+  --color-focus: #32cd32;
+  --color-background--option: #333333;
+  --color-background--option--hover: #cbd5e0a1;
+  --color-text--normal: #0c0c0c;
+  --color-text--grey: #24262c;
+  --color-text--red: #cc6666;
+  --color-text--placeholder: #ced4da;
+  --border-radius--base: 6px;
+  --border-radius--small: 4px;
+  --color-disabled: darkgray;
+}
+
+.dark-theme,
+.dark-theme dialog,
+.dark-theme input {
+  background-color: #333333;
+  color: lightgray;
+}
+
+.has-error {
+  outline: 2px solid #cc0000;
+}
+
+*:focus-visible {
+  outline: 2px solid #32cd32;
+  border-radius: var(--border-radius--base);
+}
+
+input:not([type="number"]).form-input {
+  min-width: 140px;
+}
+
+.form-field {
+  .form-input {
+    margin: 4px;
+    padding: 6px 6px 6px 6px;
+    border-radius: var(--border-radius--base);
+    border: 1px solid var(--color-border);
+    background: var(--color-background);
+    max-width: 360px;
+  }
+
+  &.disabled {
+    color: var(--color-disabled);
+
+    .form-input {
+      border-color: var(--color-disabled);
+      color: var(--color-disabled);
+    }
+  }
+}

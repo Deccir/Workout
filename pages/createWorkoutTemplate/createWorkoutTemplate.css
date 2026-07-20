@@ -1,0 +1,32 @@
+@import url(/style.css);
+
+.exercise-container {
+  margin-bottom: 10px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.rotes-quadrat {
+  height: 20px;
+  margin-right: 10px;
+}
+
+.delete-button {
+  cursor: pointer;
+}
+
+select[multiple] {
+  display: none;
+  padding: 5px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+dialog {
+  position: relative;
+  min-height: 50%;
+}
