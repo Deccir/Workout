@@ -109,11 +109,27 @@ function loadMuscles() {
 function loadExercises(types, muscles) {
   var cache = dataCache();
   if (cache.exercises == null) {
-    cache.exercises = loadJson(ASSET_BASE + "assets/exercises.json").then((data) =>
+    cache.exercises = loadMergedRawExercises().then((data) =>
       buildExerciseIndex(data, types, muscles)
     );
   }
   return cache.exercises;
+}
+
+// Raw (unresolved) exercise records straight from the JSON file, cached.
+function loadRawExercisesJson() {
+  var cache = dataCache();
+  if (cache.rawExercises == null) {
+    cache.rawExercises = loadJson(ASSET_BASE + "assets/exercises.json");
+  }
+  return cache.rawExercises;
+}
+
+// The effective raw exercise list: JSON records with the user's localStorage
+// edits/additions applied and deleted base exercises removed. Muscle/type names
+// are left unresolved (see buildExerciseIndex).
+function loadMergedRawExercises() {
+  return loadRawExercisesJson().then(mergeRawExercises);
 }
 
 function parseTypes(data) {
@@ -152,14 +168,14 @@ function buildExerciseIndex(data, types, muscles) {
   data.forEach((exercise) => {
     exercisesByName[exercise.name] = new Exercise(
       exercise.name,
-      exercise.muscles.map((muscleName) =>
-        muscles.find((muscle) => muscle.name == muscleName)
-      ),
+      exercise.muscles
+        .map((muscleName) => muscles.find((muscle) => muscle.name == muscleName))
+        .filter(Boolean),
       exercise.difficulty,
       /*exercise.link ||*/ "/assets/homer.gif",
-      exercise.types.map((typeName) =>
-        types.find((type) => type.name == typeName)
-      )
+      exercise.types
+        .map((typeName) => types.find((type) => type.name == typeName))
+        .filter(Boolean)
     );
   });
 
@@ -371,6 +387,81 @@ function deleteWorkoutFromStorage(name) {
   var workouts = loadWorkoutsFromStorage();
   delete workouts[name];
   saveToStorage("workouts", workouts);
+}
+
+// ---------- Exercise editing storage ----------
+// The exercises shipped in assets/exercises.json are the base set. The user can
+// edit/add exercises (stored under `exerciseOverrides`, keyed by name, taking
+// precedence over the base) and delete base exercises (their names listed under
+// `deletedExercises`). mergeRawExercises() combines the three.
+
+const EXERCISE_OVERRIDES_KEY = "exerciseOverrides";
+const EXERCISE_DELETES_KEY = "deletedExercises";
+
+function loadExerciseOverrides() {
+  return loadFromStorage(EXERCISE_OVERRIDES_KEY) || {};
+}
+
+function loadDeletedExerciseNames() {
+  return loadFromStorage(EXERCISE_DELETES_KEY) || [];
+}
+
+// Combine base JSON records with overrides and deletions into one raw list.
+function mergeRawExercises(baseData) {
+  var overrides = loadExerciseOverrides();
+  var deleted = loadDeletedExerciseNames();
+
+  var byName = {};
+  (baseData || []).forEach((exercise) => {
+    byName[exercise.name] = exercise;
+  });
+  deleted.forEach((name) => {
+    delete byName[name];
+  });
+  Object.keys(overrides).forEach((name) => {
+    byName[name] = overrides[name];
+  });
+
+  return Object.values(byName);
+}
+
+// Create or update an exercise. Its name un-deletes the exercise if it was a
+// previously removed base exercise.
+function upsertExerciseOverride(exercise) {
+  var overrides = loadExerciseOverrides();
+  overrides[exercise.name] = exercise;
+  saveToStorage(EXERCISE_OVERRIDES_KEY, overrides);
+
+  var deleted = loadDeletedExerciseNames().filter((name) => name !== exercise.name);
+  saveToStorage(EXERCISE_DELETES_KEY, deleted);
+
+  invalidateExerciseCache();
+}
+
+// Delete an exercise. A base (JSON) exercise is recorded in the delete list so
+// it stays gone; a purely custom one just loses its override.
+function deleteExercise(name, isBaseExercise) {
+  var overrides = loadExerciseOverrides();
+  delete overrides[name];
+  saveToStorage(EXERCISE_OVERRIDES_KEY, overrides);
+
+  if (isBaseExercise) {
+    var deleted = loadDeletedExerciseNames();
+    if (!deleted.includes(name)) {
+      deleted.push(name);
+      saveToStorage(EXERCISE_DELETES_KEY, deleted);
+    }
+  }
+
+  invalidateExerciseCache();
+}
+
+// Drop the resolved-exercise caches so the next load reflects storage edits.
+// The raw JSON cache is kept — the base set never changes at runtime.
+function invalidateExerciseCache() {
+  var cache = dataCache();
+  cache.exercises = null;
+  cache.appData = null;
 }
 
 // Read an integer from a number input, falling back to its defaultvalue (then

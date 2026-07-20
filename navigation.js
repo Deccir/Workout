@@ -7,7 +7,8 @@ const PAGES = {
   CreateWorkoutTemplate: APP_BASE + 'pages/createWorkoutTemplate/createWorkoutTemplate.html',
   WorkoutEditor: APP_BASE + 'pages/workoutEditor/workoutEditor.html',
   WorkoutPreview: APP_BASE + 'pages/workoutPreview/workoutPreview.html',
-  RunWorkout: APP_BASE + 'pages/workout/workout.html'
+  RunWorkout: APP_BASE + 'pages/workout/workout.html',
+  ManageExercises: APP_BASE + 'pages/manageExercises/manageExercises.html'
 }
 
 function showPage(pageUrl) {

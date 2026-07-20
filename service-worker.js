@@ -1,6 +1,6 @@
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open('workout-shuffle-cache-v4').then((cache) => {
+    caches.open('workout-shuffle-cache-v5').then((cache) => {
       // Paths resolve relative to this service worker's location (app root),
       // so the app works at any deploy path (site root or a subdir).
       return cache.addAll([
@@ -30,6 +30,9 @@ self.addEventListener('install', (event) => {
         'pages/workoutEditor/workoutEditor.html',
         'pages/workoutEditor/workoutEditor.js',
         'pages/workoutEditor/workoutEditor.css',
+        'pages/manageExercises/manageExercises.html',
+        'pages/manageExercises/manageExercises.js',
+        'pages/manageExercises/manageExercises.css',
         'assets/icon.png',
         'assets/exercises.json',
         'assets/muscles.json',
@@ -45,7 +48,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys
-          .filter((key) => key !== 'workout-shuffle-cache-v4')
+          .filter((key) => key !== 'workout-shuffle-cache-v5')
           .map((key) => caches.delete(key))
       )
     )

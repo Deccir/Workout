@@ -5,20 +5,32 @@ body {
   margin: 0 auto;
 }
 
-.exercise-container {
-  margin-bottom: 20px;
+.exercise-container:not(:empty) {
+  margin-bottom: 10px;
 }
 
-/* Empty-state shown while no exercises have been added */
-.exercise-container:empty::before {
-  content: "No exercises yet. Tap “Add Exercise” to build your workout.";
+/* Add button rendered as an always-present empty slot at the bottom of the list. */
+.add-slot {
   display: block;
-  padding: 32px 20px;
+  width: 100%;
+  margin: 0 0 20px;
+  padding: 20px;
   text-align: center;
+  font-weight: 600;
   color: var(--color-text-muted);
   background: var(--color-surface);
   border: 1px dashed var(--color-border-strong);
   border-radius: var(--border-radius--base);
+  box-shadow: none;
+  transition: border-color var(--transition), color var(--transition);
+}
+
+.add-slot:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-accent);
+  transform: none;
+  box-shadow: none;
 }
 
 .row {

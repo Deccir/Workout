@@ -5,32 +5,19 @@ body {
   margin: 0 auto;
 }
 
-.exercise-container:not(:empty) {
-  margin-bottom: 10px;
+.exercise-container {
+  margin-bottom: 20px;
 }
 
-/* Add button rendered as an always-present empty slot at the bottom of the list. */
-.add-slot {
+.exercise-container:empty::before {
+  content: "No exercises match.";
   display: block;
-  width: 100%;
-  margin: 0 0 20px;
-  padding: 20px;
+  padding: 32px 20px;
   text-align: center;
-  font-weight: 600;
   color: var(--color-text-muted);
   background: var(--color-surface);
   border: 1px dashed var(--color-border-strong);
   border-radius: var(--border-radius--base);
-  box-shadow: none;
-  transition: border-color var(--transition), color var(--transition);
-}
-
-.add-slot:hover {
-  background: var(--color-surface);
-  color: var(--color-text);
-  border-color: var(--color-accent);
-  transform: none;
-  box-shadow: none;
 }
 
 .row {
@@ -49,15 +36,58 @@ body {
   border-color: var(--color-border-strong);
 }
 
-.row-label {
+.difficulty-swatch {
+  display: flex;
+  flex-direction: column;
+  height: 30px;
+  width: 12px;
+  border-radius: 4px;
+  overflow: hidden;
+  flex: none;
+}
+
+.swatch-part {
+  flex: 1;
+}
+
+.row-text {
   flex: 1;
   min-width: 0;
-  font-weight: 500;
+}
+
+.row-label {
+  font-weight: 600;
   overflow-wrap: anywhere;
+}
+
+.row-sub {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
 }
 
 .row-actions {
   display: flex;
   gap: 4px;
   flex: none;
+}
+
+.hint {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin: 0 0 12px;
+}
+
+select[multiple] {
+  display: none;
+  padding: 5px;
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+}
+
+dialog {
+  position: relative;
+}
+
+.action-bar {
+  margin-bottom: 14px;
 }

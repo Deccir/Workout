@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <base href=".">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="../../manifest.json">
+  <link rel="icon" href="../../favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="#">
+
+  <title>Workout Shuffle - Manage Exercises</title>
+  <link rel="stylesheet" href="manageExercises.css">
+  <link rel="stylesheet" href="../../lib/toaster/toaster.css">
+  <script src="../../lib/js-multiselect-dropdown-main/multi-select-dropdown.js"></script>
+  <script src="../../lib/toaster/toaster.js"></script>
+  <script src="../../navigation.js"></script>
+  <script src="../../loader.js"></script>
+  <script src="manageExercises.js"></script>
+</head>
+
+<body class="dark-theme">
+  <div id="toaster-container" class="toaster-container"></div>
+
+  <header class="page-header">
+    <button class="back-link" onclick="showPage(PAGES.Home)" aria-label="Back to menu">←</button>
+    <h1>Manage Exercises</h1>
+  </header>
+
+  <div class="action-bar">
+    <button onclick="openAddDialog()">+ Add Exercise</button>
+  </div>
+
+  <div class="form-field">
+    <input type="text" id="search-input" class="form-input" placeholder="Search exercises…"
+      oninput="renderExerciseList()">
+  </div>
+
+  <div id="exercise-list" class="exercise-container"></div>
+
+  <dialog id="exercise-dialog">
+    <h2 id="exercise-dialog-title">Add exercise</h2>
+
+    <div class="form-field">
+      <label for="name-input">Name</label>
+      <input type="text" id="name-input" class="form-input" placeholder="Exercise name">
+    </div>
+
+    <div class="form-field">
+      <label for="muscle-select">Muscle groups</label>
+      <select multiple search='true' id="muscle-select" placeholder="Muscle group"></select>
+    </div>
+
+    <div class="form-field">
+      <label for="type-select">Exercise types</label>
+      <select multiple search='true' id="type-select" placeholder="Exercise Type"></select>
+    </div>
+
+    <p class="hint">Difficulty ranges from 0 (easy) to 8 (extremely hard).</p>
+    <div class="form-field">
+      <label for="difficulty-input">Difficulty</label>
+      <input type="number" id="difficulty-input" class="form-input" min="0" max="8" value="0" defaultvalue="0">
+    </div>
+
+    <div class="form-field">
+      <label for="link-input">Link (optional)</label>
+      <input type="text" id="link-input" class="form-input" placeholder="https://…">
+    </div>
+
+    <div class="dialog-actions">
+      <button onclick="closeDialog('exercise-dialog')">Cancel</button>
+      <button onclick="saveExercise()" id="save-exercise-button">Save</button>
+    </div>
+  </dialog>
+
+  <dialog id="confirm-delete-dialog">
+    <h2>Delete</h2>
+    <p id="confirm-delete-message"></p>
+    <div class="dialog-actions">
+      <button onclick="closeDialog('confirm-delete-dialog')">Cancel</button>
+      <button class="delete-confirm" id="confirm-delete-button">Delete</button>
+    </div>
+  </dialog>
+</body>
+
+</html>
