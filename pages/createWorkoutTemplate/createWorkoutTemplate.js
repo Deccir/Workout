@@ -32,7 +32,7 @@ function readOverwriteValues() {
   Object.keys(OVERWRITE_FIELDS).forEach((prefix) => {
     var enabled = document.getElementById(prefix + "-enabled").checked;
     values[OVERWRITE_FIELDS[prefix]] = enabled
-      ? parseInt(document.getElementById(prefix + "-input").value)
+      ? readIntInput(prefix + "-input")
       : null;
   });
   return values;
@@ -96,17 +96,17 @@ window.addEventListener("load", () => {
   loadWorkoutForEdit();
 });
 
-// When opened with ?workout=<name>, load that saved workout so it can be edited.
+// When opened with ?template=<name>, load that saved template so it can be edited.
 function loadWorkoutForEdit() {
-  var name = getURLParameter("workout");
+  var name = getURLParameter("template");
   if (name == null) {
     return;
   }
 
-  var workouts = loadFromStorage("workouts") || {};
-  var template = workouts[name];
+  var templates = loadTemplatesFromStorage();
+  var template = templates[name];
   if (template == null) {
-    toast("Workout not found", "error", 5);
+    toast("Template not found", "error", 5);
     return;
   }
 
@@ -483,24 +483,21 @@ function saveWorkout() {
     enteredName = "Workout " + timeDifference;
   }
 
-  var existingWorkouts = loadFromStorage("workouts");
-  if (existingWorkouts == null) {
-    existingWorkouts = {};
-  }
+  var existingWorkouts = loadTemplatesFromStorage();
 
-  // A clashing name is only an error when it is a *different* workout than the
+  // A clashing name is only an error when it is a *different* template than the
   // one being edited.
   if (
     existingWorkouts.hasOwnProperty(enteredName) &&
     enteredName !== editingWorkoutName
   ) {
     nameInput.classList.add("has-error");
-    toast("A workout with this name already exists", "error", 5);
+    toast("A template with this name already exists", "error", 5);
     return;
   }
   nameInput.classList.remove("has-error");
 
-  // If the workout was renamed while editing, drop the old entry.
+  // If the template was renamed while editing, drop the old entry.
   if (editingWorkoutName != null && editingWorkoutName !== enteredName) {
     delete existingWorkouts[editingWorkoutName];
   }
@@ -513,14 +510,14 @@ function saveWorkout() {
   existingWorkouts[enteredName] = new WorkoutTemplate(
     enteredName,
     orderedExerciseTemplates,
-    parseInt(document.getElementById("exercise-time-input").value),
-    parseInt(document.getElementById("rest-time-input").value),
-    parseInt(document.getElementById("set-count-input").value),
-    parseInt(document.getElementById("set-rest-time-input").value),
-    parseInt(document.getElementById("circuit-count-input").value)
+    readIntInput("exercise-time-input"),
+    readIntInput("rest-time-input"),
+    readIntInput("set-count-input"),
+    readIntInput("set-rest-time-input"),
+    readIntInput("circuit-count-input")
   );
 
-  saveToStorage("workouts", existingWorkouts);
+  saveToStorage("templates", existingWorkouts);
   closeDialog("save-dialog");
 
   showPage(PAGES.Home);
@@ -530,7 +527,7 @@ function saveWorkout() {
 function onSetCountChanged(event) {
   const input = event.target;
   const value = parseInt(input.value);
-  if (isNaN(value) || value == 1) {
+  if (isNaN(value) || value <= 1) {
     document.getElementById('set-rest-time-field').classList.add('disabled');
     document.getElementById('set-rest-time-input').disabled = true;
   } else {

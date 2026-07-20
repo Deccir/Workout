@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <base href=".">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="../../manifest.json">
+  <link rel="icon" href="../../favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="#">
+
+  <title>Workout Shuffle - Workout Editor</title>
+  <link rel="stylesheet" href="workoutEditor.css">
+  <link rel="stylesheet" href="../../lib/toaster/toaster.css">
+  <script src="../../loader.js"></script>
+  <script src="../../navigation.js"></script>
+  <script src="../../lib/toaster/toaster.js"></script>
+  <script src="workoutEditor.js"></script>
+</head>
+
+<body class="dark-theme">
+  <div id="toaster-container" class="toaster-container"></div>
+
+  <header class="page-header">
+    <button class="back-link" onclick="leaveEditor()" aria-label="Back to menu">←</button>
+    <h1>Workout Editor</h1>
+  </header>
+
+  <div class="form-field">
+    <label for="name-input">Workout name:</label>
+    <input type="text" id="name-input" class="form-input" oninput="markDirty()">
+  </div>
+
+  <div id="exercise-list" class="exercise-container"></div>
+
+  <div class="action-bar">
+    <button class="secondary" onclick="openAddExercise()">+ Add Exercise</button>
+    <button id="save-button" onclick="saveWorkout()" disabled="true">Save Workout</button>
+  </div>
+
+  <dialog id="exercise-dialog">
+    <h2 id="exercise-dialog-title">Add exercise</h2>
+
+    <div class="form-field">
+      <label for="exercise-select">Exercise</label>
+      <select id="exercise-select" class="form-input"></select>
+    </div>
+
+    <div class="form-field">
+      <label for="mode-select">Measure by</label>
+      <select id="mode-select" class="form-input" onchange="onModeChanged()">
+        <option value="time">Time (seconds)</option>
+        <option value="reps">Repetitions</option>
+      </select>
+    </div>
+
+    <div class="form-field" id="time-field">
+      <label for="time-input">Time per set (seconds)</label>
+      <input type="number" id="time-input" class="form-input" min="5" value="40" defaultvalue="40">
+    </div>
+
+    <div class="form-field" id="reps-field" style="display:none">
+      <label for="reps-input">Repetitions per set</label>
+      <input type="number" id="reps-input" class="form-input" min="1" value="10" defaultvalue="10">
+    </div>
+
+    <div class="form-field">
+      <label for="set-count-input">Number of sets</label>
+      <input type="number" id="set-count-input" class="form-input" min="1" value="1" defaultvalue="1"
+        onchange="onSetCountChanged()">
+    </div>
+
+    <div class="form-field disabled" id="set-rest-time-field">
+      <label for="set-rest-time-input">Rest between sets (seconds)</label>
+      <input type="number" id="set-rest-time-input" class="form-input" min="1" value="60" defaultvalue="60" disabled>
+    </div>
+
+    <div class="form-field">
+      <label for="rest-time-input">Rest after exercise (seconds)</label>
+      <input type="number" id="rest-time-input" class="form-input" min="0" value="60" defaultvalue="60">
+    </div>
+
+    <div class="dialog-actions">
+      <button onclick="closeDialog('exercise-dialog')">Cancel</button>
+      <button id="confirm-exercise-button" onclick="confirmExercise()">Add</button>
+    </div>
+  </dialog>
+</body>
+
+</html>

@@ -3,16 +3,22 @@ var exerciseImage;
 var progressBar;
 var progressFill;
 var exerciseLabel;
+var setLabel;
+var pauseButton;
+var doneButton;
 
 // Loaded data + the workout being run
 var exercises = null;
 var currentWorkout = null;
-var currentExerciseIndex = 0;
+
+// A workout is expanded into a flat list of phases up front; `phaseIndex` points
+// at the current one.
+var phases = [];
+var phaseIndex = 0;
 
 // Timer / phase state
-var currentPhase = 'exercise'; // 'prepare' | 'exercise' | 'rest'
 var isPaused = false;
-var duration = 0; // current phase length in ms
+var duration = 0; // current phase length in ms (0 for manual reps phases)
 var startTime = 0;
 var endTime = 0;
 var pausedAt = 0;
@@ -29,106 +35,223 @@ window.addEventListener('load', function () {
   progressBar = document.getElementById('progressBar');
   progressFill = document.getElementById('progressFill');
   exerciseLabel = document.getElementById('exerciseLabel');
+  setLabel = document.getElementById('setLabel');
+  pauseButton = document.getElementById('pauseButton');
+  doneButton = document.getElementById('doneButton');
 
   loadAppData().then((data) => {
     exercises = data.exercises;
     currentWorkout = loadWorkout(data);
 
-    if (currentWorkout == null || currentWorkout.exerciseNames.length == 0) {
+    if (currentWorkout == null || currentWorkout.exercises.length == 0) {
       toast('No workout available to run', 'error', 5);
       exerciseLabel.textContent = 'No workout available';
       return;
     }
 
-    startPreparePhase();
+    phases = buildPhases(currentWorkout);
+    phaseIndex = 0;
+    runPhase();
   });
 });
 
-// Resolve which workout to run: the one named in the URL, else the first saved
-// one, else a small built-in demo so the page still works standalone.
+// Resolve which workout to run:
+//   ?source=preview -> the transient workout handed over by WorkoutPreview
+//   ?workout=<name> -> that saved workout
+//   otherwise the first saved workout, else a small built-in demo.
 function loadWorkout(data) {
-  var name = getURLParameter('workout');
-  var savedWorkouts = loadFromStorage('workouts') || {};
-  var template = name != null ? savedWorkouts[name] : Object.values(savedWorkouts)[0];
-
-  if (template != null) {
-    return buildWorkoutFromTemplate(template, data);
+  if (getURLParameter('source') === 'preview') {
+    return takePendingWorkout();
   }
 
-  return new Workout('Demo', ['Stick Dislocation', 'Push up'], 40, 15);
+  var name = getURLParameter('workout');
+  var savedWorkouts = loadWorkoutsFromStorage();
+  var workout = name != null ? savedWorkouts[name] : Object.values(savedWorkouts)[0];
+
+  if (workout != null) {
+    return workout;
+  }
+
+  return new Workout('Demo', [
+    new WorkoutExercise('Stick Dislocation', 'time', 40, null, 1, null, 15),
+    new WorkoutExercise('Push up', 'time', 40, null, 1, null, 15),
+  ]);
 }
 
-function currentExercise() {
-  return exercises[currentWorkout.exerciseNames[currentExerciseIndex]];
+// Expand a workout into an ordered list of phases:
+//   prepare -> (for each exercise: for each set: exercise [+ set-rest]) [+ rest]
+function buildPhases(workout) {
+  var result = [{ type: 'prepare' }];
+  var exerciseCount = workout.exercises.length;
+
+  workout.exercises.forEach((exercise, exerciseIndex) => {
+    var setCount = exercise.setCount || 1;
+
+    for (var set = 1; set <= setCount; set++) {
+      result.push({
+        type: 'exercise',
+        exerciseIndex: exerciseIndex,
+        setNumber: set,
+        setTotal: setCount,
+      });
+
+      if (set < setCount && exercise.setRestTime > 0) {
+        result.push({ type: 'setrest', seconds: exercise.setRestTime });
+      }
+    }
+
+    if (exerciseIndex < exerciseCount - 1 && exercise.restTime > 0) {
+      result.push({ type: 'rest', seconds: exercise.restTime });
+    }
+  });
+
+  return result;
 }
 
-// 10-second "get ready" countdown before the workout starts. Shows the first
-// exercise so the user can prepare for it.
-function startPreparePhase() {
-  currentPhase = 'prepare';
+function exerciseData(name) {
+  return exercises[name];
+}
 
-  var exercise = exercises[currentWorkout.exerciseNames[0]];
-  exerciseImage.src = exercise.link;
-  exerciseImage.alt = exercise.name;
-  exerciseLabel.textContent = 'Get ready: ' + exercise.name;
+// ---------- Phase execution ----------
+
+function runPhase() {
+  if (phaseIndex >= phases.length) {
+    finishWorkout();
+    return;
+  }
+
+  var phase = phases[phaseIndex];
+  doneButton.style.display = 'none';
+  setLabel.textContent = '';
+
+  if (phase.type === 'prepare') {
+    runPreparePhase();
+  } else if (phase.type === 'exercise') {
+    runExercisePhase(phase);
+  } else if (phase.type === 'setrest') {
+    runRestPhase('Rest — next set', phase.seconds);
+  } else {
+    runRestPhase('Rest', phase.seconds);
+  }
+}
+
+function runPreparePhase() {
+  var first = currentWorkout.exercises[0];
+  var exercise = exerciseData(first.name);
+  showImage(exercise, first.name);
+  exerciseLabel.textContent = 'Get ready: ' + first.name;
   progressFill.style.backgroundColor = REST_COLOR;
 
   speak('Get ready');
   startTimer(PREPARE_TIME * 1000);
 }
 
-function startExercisePhase() {
-  currentPhase = 'exercise';
+function runExercisePhase(phase) {
+  var workoutExercise = currentWorkout.exercises[phase.exerciseIndex];
+  var exercise = exerciseData(workoutExercise.name);
 
-  var exercise = currentExercise();
-  exerciseImage.src = exercise.link;
-  exerciseImage.alt = exercise.name;
+  showImage(exercise, workoutExercise.name);
   exerciseLabel.textContent =
-    (currentExerciseIndex + 1) + '/' + currentWorkout.exerciseNames.length +
-    ' – ' + exercise.name;
-  progressFill.style.backgroundColor = difficultyToColor(exercise.difficulty);
+    (phase.exerciseIndex + 1) + '/' + currentWorkout.exercises.length +
+    ' – ' + workoutExercise.name;
+  if (phase.setTotal > 1) {
+    setLabel.textContent = 'Set ' + phase.setNumber + '/' + phase.setTotal;
+  }
+  progressFill.style.backgroundColor =
+    exercise != null ? difficultyToColor(exercise.difficulty) : REST_COLOR;
 
-  speak(exercise.name);
-  startTimer(currentWorkout.exerciseTime * 1000);
-}
+  speak(workoutExercise.name);
 
-function startRestPhase() {
-  currentPhase = 'rest';
-
-  exerciseLabel.textContent = 'Rest';
-  progressFill.style.backgroundColor = REST_COLOR;
-
-  speak('Rest');
-  startTimer(currentWorkout.restTime * 1000);
-}
-
-// Advance from whatever the current phase is to the next one.
-function advancePhase() {
-  if (currentPhase === 'prepare') {
-    startExercisePhase(); // prepare -> first exercise, index stays at 0
-  } else if (currentPhase === 'exercise' && currentWorkout.restTime > 0) {
-    startRestPhase();
+  if (workoutExercise.mode === 'reps') {
+    // Reps-based: no timer, the user advances with the Done button.
+    stopTimer();
+    progressFill.style.width = '100%';
+    exerciseLabel.textContent += ' — ' + workoutExercise.reps + ' reps';
+    doneButton.style.display = '';
   } else {
-    nextExercise();
+    startTimer(workoutExercise.time * 1000);
   }
 }
 
+function runRestPhase(label, seconds) {
+  exerciseLabel.textContent = label;
+  progressFill.style.backgroundColor = REST_COLOR;
+  speak('Rest');
+  startTimer(seconds * 1000);
+}
+
+function finishWorkout() {
+  stopTimer();
+  progressFill.style.width = '100%';
+  progressFill.style.backgroundColor = REST_COLOR;
+  exerciseLabel.textContent = 'Workout complete!';
+  setLabel.textContent = '';
+  doneButton.style.display = 'none';
+  speak('Workout complete');
+}
+
+function showImage(exercise, name) {
+  exerciseImage.src = exercise != null ? exercise.link : ASSET_BASE + 'assets/homer.gif';
+  exerciseImage.alt = name;
+}
+
+// Advance to the next phase in the schedule.
+function advancePhase() {
+  phaseIndex++;
+  runPhase();
+}
+
+// Manual advance out of a reps-based exercise phase.
+function finishReps() {
+  advancePhase();
+}
+
+// ---------- Prev / Next by exercise ----------
+
+// Index of the first phase belonging to the given exercise (its first set).
+function phaseIndexForExercise(exerciseIndex) {
+  for (var i = 0; i < phases.length; i++) {
+    if (phases[i].type === 'exercise' &&
+        phases[i].exerciseIndex === exerciseIndex &&
+        phases[i].setNumber === 1) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+// Which exercise the current phase relates to (0 during prepare).
+function currentExerciseIndex() {
+  var phase = phases[Math.min(phaseIndex, phases.length - 1)];
+  return phase != null && phase.exerciseIndex != null ? phase.exerciseIndex : 0;
+}
+
 function previousExercise() {
-  var count = currentWorkout.exerciseNames.length;
-  currentExerciseIndex = (currentExerciseIndex - 1 + count) % count;
-  startExercisePhase();
+  var count = currentWorkout.exercises.length;
+  var target = (currentExerciseIndex() - 1 + count) % count;
+  jumpToExercise(target);
 }
 
 function nextExercise() {
-  currentExerciseIndex =
-    (currentExerciseIndex + 1) % currentWorkout.exerciseNames.length;
-  startExercisePhase();
+  var count = currentWorkout.exercises.length;
+  var target = (currentExerciseIndex() + 1) % count;
+  jumpToExercise(target);
+}
+
+function jumpToExercise(exerciseIndex) {
+  var target = phaseIndexForExercise(exerciseIndex);
+  if (target >= 0) {
+    phaseIndex = target;
+    runPhase();
+  }
 }
 
 function cancelWorkout() {
-  isPaused = true;
+  stopTimer();
   showPage(PAGES.Home);
 }
+
+// ---------- Timer ----------
 
 function startTimer(durationMs) {
   duration = durationMs;
@@ -137,12 +260,22 @@ function startTimer(durationMs) {
   endTime = startTime + duration;
   lastCountdownSecond = 0;
   halfwaySpoken = false;
+  pauseButton.disabled = false;
+  pauseButton.textContent = 'Pause';
   progressFill.style.width = '0%';
   tick();
 }
 
+// Stop the timer loop (used for manual reps phases and workout completion).
+function stopTimer() {
+  isPaused = true;
+  duration = 0;
+  pauseButton.disabled = true;
+  pauseButton.textContent = 'Pause';
+}
+
 function tick() {
-  if (isPaused) {
+  if (isPaused || duration == 0) {
     return;
   }
 
@@ -158,10 +291,11 @@ function tick() {
   }
 }
 
-// Spoken cues during a phase: "halfway there" at the midpoint of an exercise,
-// and a 3-2-1 countdown in the final seconds of every phase.
+// Spoken cues during a phase: "halfway there" at the midpoint of a timed
+// exercise, and a 3-2-1 countdown in the final seconds of every timed phase.
 function announceCues(now, elapsed) {
-  if (currentPhase === 'exercise' && !halfwaySpoken && elapsed >= duration / 2) {
+  var phase = phases[phaseIndex];
+  if (phase != null && phase.type === 'exercise' && !halfwaySpoken && elapsed >= duration / 2) {
     halfwaySpoken = true;
     speak('halfway there');
   }
@@ -174,27 +308,29 @@ function announceCues(now, elapsed) {
 }
 
 function togglePauseResume() {
-  var pauseResumeButton = document.querySelector('button[onclick="togglePauseResume()"]');
+  if (duration == 0) {
+    return; // nothing to pause during a manual reps phase
+  }
   isPaused = !isPaused;
 
   if (isPaused) {
     pausedAt = Date.now();
-    pauseResumeButton.textContent = 'Continue';
+    pauseButton.textContent = 'Continue';
   } else {
     var pausedFor = Date.now() - pausedAt;
     startTime += pausedFor;
     endTime += pausedFor;
-    pauseResumeButton.textContent = 'Pause';
+    pauseButton.textContent = 'Pause';
     tick();
   }
 }
 
 function speak(message) {
   if (!('speechSynthesis' in window)) {
-    console.log("no speech")
+    console.log('no speech');
     return;
   }
-  console.log(message)
+  console.log(message);
   var utterance = new SpeechSynthesisUtterance(message);
   utterance.lang = 'en-US';
   speechSynthesis.speak(utterance);

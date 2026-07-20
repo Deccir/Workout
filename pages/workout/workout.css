@@ -37,7 +37,20 @@ h1 {
 #exerciseLabel {
   font-size: 1.5rem;
   min-height: 1.8em;
-  margin: 0 0 20px;
+  margin: 0 0 4px;
+}
+
+.set-label {
+  min-height: 1.2em;
+  margin: 0 0 16px;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+#doneButton {
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 14px 12px;
 }
 
 .exercise-media {

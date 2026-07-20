@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <base href=".">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="../../manifest.json">
+  <link rel="icon" href="../../favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="#">
+
+  <title>Workout Shuffle - Preview</title>
+  <link rel="stylesheet" href="workoutPreview.css">
+  <link rel="stylesheet" href="../../lib/toaster/toaster.css">
+  <script src="../../loader.js"></script>
+  <script src="../../navigation.js"></script>
+  <script src="../../lib/toaster/toaster.js"></script>
+  <script src="workoutPreview.js"></script>
+</head>
+
+<body class="dark-theme">
+  <div id="toaster-container" class="toaster-container"></div>
+
+  <header class="page-header">
+    <button class="back-link" onclick="showPage(PAGES.Home)" aria-label="Back to menu">←</button>
+    <h1 id="preview-title">Preview</h1>
+    <div class="header-actions">
+      <button class="secondary" onclick="reshuffleAll()">Reshuffle all</button>
+      <button onclick="openDialog('save-dialog')">Save Workout</button>
+    </div>
+  </header>
+
+  <div id="slot-list" class="slot-list"></div>
+
+  <div class="action-bar">
+    <button id="start-button" onclick="startWorkout()">Start Workout</button>
+  </div>
+
+  <!-- Exercise template details (the "i" button) -->
+  <dialog id="info-dialog">
+    <h2>Exercise slot</h2>
+    <div id="info-content"></div>
+    <div class="dialog-actions">
+      <button onclick="closeDialog('info-dialog')">Close</button>
+    </div>
+  </dialog>
+
+  <!-- Manual exercise picker -->
+  <dialog id="pick-dialog">
+    <h2>Pick an exercise</h2>
+    <div class="form-field">
+      <label for="pick-select">Matching exercises</label>
+      <select id="pick-select" class="form-input"></select>
+    </div>
+    <div class="dialog-actions">
+      <button onclick="closeDialog('pick-dialog')">Cancel</button>
+      <button onclick="confirmManualPick()">Choose</button>
+    </div>
+  </dialog>
+
+  <!-- Save current configuration as a Workout -->
+  <dialog id="save-dialog">
+    <h2>Save as workout</h2>
+    <div class="form-field">
+      <label for="save-name-input">Workout name:</label>
+      <input type="text" id="save-name-input" class="form-input">
+    </div>
+    <div class="dialog-actions">
+      <button onclick="closeDialog('save-dialog')">Cancel</button>
+      <button onclick="saveAsWorkout()">Save</button>
+    </div>
+  </dialog>
+</body>
+
+</html>

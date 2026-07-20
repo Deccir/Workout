@@ -37,12 +37,28 @@ class ExerciseTemplate {
   }
 }
 
-class Workout {
-  constructor(name, exerciseNames, exerciseTime, restTime) {
+// A single concrete step in a Workout: one named exercise with its own timing.
+// `mode` is 'time' (hold for `time` seconds) or 'reps' (do `reps` repetitions,
+// advanced manually). `setCount` sets are performed, resting `setRestTime`
+// seconds between them, then `restTime` seconds before the next exercise.
+class WorkoutExercise {
+  constructor(name, mode, time, reps, setCount, setRestTime, restTime) {
     this.name = name;
-    this.exerciseNames = exerciseNames;
-    this.exerciseTime = exerciseTime;
+    this.mode = mode; // 'time' | 'reps'
+    this.time = time;
+    this.reps = reps;
+    this.setCount = setCount;
+    this.setRestTime = setCount == 1 ? null : setRestTime;
     this.restTime = restTime;
+  }
+}
+
+// A runnable workout: an ordered list of concrete WorkoutExercise steps. Unlike
+// a WorkoutTemplate it contains no shuffling — the exercises are fixed.
+class Workout {
+  constructor(name, exercises) {
+    this.name = name;
+    this.exercises = exercises; // WorkoutExercise[]
   }
 }
 
@@ -187,10 +203,31 @@ function findMatchingExercises(data, selectedMuscles, selectedTypes, minDifficul
   });
 }
 
-// Pick a concrete exercise for each exercise template, once per circuit, to turn
-// a WorkoutTemplate into a runnable Workout.
-function buildWorkoutFromTemplate(template, data) {
-  var exerciseNames = [];
+// Resolve a template's effective per-exercise settings, applying each
+// ExerciseTemplate overwrite over the workout-level default.
+function resolveExerciseSettings(template, exerciseTemplate) {
+  return {
+    time: exerciseTemplate.overwriteTime != null
+      ? exerciseTemplate.overwriteTime
+      : template.exerciseTime,
+    restTime: exerciseTemplate.overwriteRestTime != null
+      ? exerciseTemplate.overwriteRestTime
+      : template.restTime,
+    setCount: exerciseTemplate.overwriteSetCount != null
+      ? exerciseTemplate.overwriteSetCount
+      : template.setCount,
+    setRestTime: exerciseTemplate.overwriteSetRestTime != null
+      ? exerciseTemplate.overwriteSetRestTime
+      : template.setRestTime,
+  };
+}
+
+// Expand a WorkoutTemplate into an ordered list of independent "slots", one per
+// exercise template per circuit. Each slot carries the exercise templates it
+// was built from, its matching exercises and the resolved per-exercise settings.
+// The WorkoutPreview page picks/shuffles a concrete exercise per slot.
+function buildSlotsFromTemplate(template, data) {
+  var slots = [];
   var circuits = template.circuitCount || 1;
 
   for (var circuit = 0; circuit < circuits; circuit++) {
@@ -202,20 +239,42 @@ function buildWorkoutFromTemplate(template, data) {
         exerciseTemplate.difficultyMin,
         exerciseTemplate.difficultyMax
       );
-      if (matches.length == 0) {
-        return;
-      }
-      var chosen = matches[Math.floor(Math.random() * matches.length)];
-      exerciseNames.push(chosen.name);
+      slots.push({
+        exerciseTemplate: exerciseTemplate,
+        matches: matches.map((exercise) => exercise.name),
+        settings: resolveExerciseSettings(template, exerciseTemplate),
+      });
     });
   }
 
-  return new Workout(
-    template.name,
-    exerciseNames,
-    template.exerciseTime,
-    template.restTime
-  );
+  return slots;
+}
+
+// Turn slots with chosen exercise names into a concrete WorkoutExercise list.
+function slotsToWorkoutExercises(slots) {
+  return slots
+    .filter((slot) => slot.chosen != null)
+    .map((slot) => new WorkoutExercise(
+      slot.chosen,
+      'time',
+      slot.settings.time,
+      null,
+      slot.settings.setCount,
+      slot.settings.setRestTime,
+      slot.settings.restTime
+    ));
+}
+
+// Pick a concrete exercise for each exercise template, once per circuit, to turn
+// a WorkoutTemplate into a runnable Workout (random choice per slot).
+function buildWorkoutFromTemplate(template, data) {
+  var slots = buildSlotsFromTemplate(template, data);
+  slots.forEach((slot) => {
+    if (slot.matches.length > 0) {
+      slot.chosen = slot.matches[Math.floor(Math.random() * slot.matches.length)];
+    }
+  });
+  return new Workout(template.name, slotsToWorkoutExercises(slots));
 }
 
 // ---------- Shared helpers ----------
@@ -255,6 +314,87 @@ function loadFromStorage(key) {
 
 function saveToStorage(key, data) {
   localStorage.setItem(key, JSON.stringify(data));
+}
+
+// ---------- Templates / Workouts storage ----------
+// `templates` holds WorkoutTemplate objects (shuffle definitions);
+// `workouts` holds concrete Workout objects (fixed exercise lists).
+
+// One-time migration: earlier versions stored templates under the `workouts`
+// key. Move any legacy template entries (identified by `exerciseTemplates`)
+// into `templates`, leaving only real workouts under `workouts`.
+function migrateStorage() {
+  if (localStorage.getItem("storageMigratedV2")) {
+    return;
+  }
+
+  var legacy = loadFromStorage("workouts");
+  if (legacy != null && typeof legacy === "object") {
+    var templates = loadFromStorage("templates") || {};
+    var workouts = {};
+
+    Object.keys(legacy).forEach((name) => {
+      var entry = legacy[name];
+      if (entry != null && entry.exerciseTemplates != null) {
+        if (!templates.hasOwnProperty(name)) {
+          templates[name] = entry;
+        }
+      } else if (entry != null) {
+        workouts[name] = entry;
+      }
+    });
+
+    saveToStorage("templates", templates);
+    saveToStorage("workouts", workouts);
+  }
+
+  localStorage.setItem("storageMigratedV2", "1");
+}
+
+function loadTemplatesFromStorage() {
+  migrateStorage();
+  return loadFromStorage("templates") || {};
+}
+
+function loadWorkoutsFromStorage() {
+  migrateStorage();
+  return loadFromStorage("workouts") || {};
+}
+
+function deleteTemplateFromStorage(name) {
+  var templates = loadTemplatesFromStorage();
+  delete templates[name];
+  saveToStorage("templates", templates);
+}
+
+function deleteWorkoutFromStorage(name) {
+  var workouts = loadWorkoutsFromStorage();
+  delete workouts[name];
+  saveToStorage("workouts", workouts);
+}
+
+// Read an integer from a number input, falling back to its defaultvalue (then
+// its min, then 0) when the field is empty or non-numeric, and clamping to min.
+// Guards against a cleared input yielding NaN in stored data.
+function readIntInput(id) {
+  var input = document.getElementById(id);
+  var value = parseInt(input.value);
+
+  if (isNaN(value)) {
+    value = parseInt(input.getAttribute("defaultvalue"));
+    if (isNaN(value)) {
+      value = parseInt(input.min);
+      if (isNaN(value)) {
+        value = 0;
+      }
+    }
+  }
+
+  var min = parseInt(input.min);
+  if (!isNaN(min) && value < min) {
+    value = min;
+  }
+  return value;
 }
 
 // Read a CSS custom property from :root. Also used by lib/accordion.

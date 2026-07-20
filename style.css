@@ -283,7 +283,96 @@ button[onclick*="cancel" i]:hover {
 
 .workout-name {
   flex: 1;
+  min-width: 0;
   font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.workout-row button {
+  margin: 0;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+}
+
+/* Danger button variant (delete rows, confirm-delete action) */
+button.delete,
+button.delete-confirm {
+  background: transparent;
+  color: var(--color-danger);
+  box-shadow: inset 0 0 0 1.5px var(--color-danger);
+}
+
+button.delete:hover,
+button.delete-confirm:hover {
+  background: var(--color-danger);
+  color: #fff;
+  box-shadow: var(--shadow-2);
+}
+
+.empty-message {
+  color: var(--color-text-muted);
+  padding: 8px 0;
+}
+
+.credits-lead {
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.credits-links {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: flex;
+  gap: 16px;
+}
+
+.credits-links a {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.credits-links a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Icon buttons (shared) ---------- */
+.icon-button {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--color-text);
+  background: var(--color-surface-raised);
+  box-shadow: inset 0 0 0 1px var(--color-border);
+}
+
+.icon-button:hover {
+  background: var(--color-border);
+  color: var(--color-text);
+  box-shadow: inset 0 0 0 1px var(--color-border-strong);
+}
+
+.icon-button:disabled {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--color-border);
+  opacity: 0.4;
+}
+
+.icon-button.delete-button {
+  color: var(--color-danger);
+}
+
+.icon-button.delete-button:hover {
+  background: var(--color-danger);
+  color: #fff;
+  box-shadow: none;
 }
 
 /* ---------- Forms ---------- */

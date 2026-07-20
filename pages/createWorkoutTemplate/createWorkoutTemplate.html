@@ -9,7 +9,7 @@
   <link rel="icon" href="../../favicon.ico" type="image/x-icon">
   <link rel="shortcut icon" href="#">
 
-  <title>Workout Shuffle - Create new Workout</title>
+  <title>Workout Shuffle - Create Workout Template</title>
   <link rel="stylesheet" href="createWorkoutTemplate.css">
   <link rel="stylesheet" href="../../lib/toaster/toaster.css">
   <script src="../../lib/js-multiselect-dropdown-main/multi-select-dropdown.js"></script>
@@ -25,14 +25,14 @@
 
   <header class="page-header">
     <button class="back-link" onclick="showPage(PAGES.Home)" aria-label="Back to menu">←</button>
-    <h1>Create Workout</h1>
+    <h1>Create Workout Template</h1>
   </header>
 
   <div id="exercise-list" class="exercise-container"></div>
 
   <div class="action-bar">
     <button class="secondary" onclick="openDialog('exercise-template-dialog')">+ Add Exercise</button>
-    <button onclick="openDialog('save-dialog')">Save Workout</button>
+    <button onclick="openDialog('save-dialog')">Save Template</button>
   </div>
 
   <dialog id="exercise-template-dialog">
@@ -121,9 +121,9 @@
   </dialog>
 
   <dialog id="save-dialog">
-    <h2>Workout settings</h2>
+    <h2>Template settings</h2>
     <div class="form-field">
-      <label for="name-input">optional name for this Workout:</label>
+      <label for="name-input">optional name for this template:</label>
       <input type="text" id="name-input" class="form-input">
     </div>
 

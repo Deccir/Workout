@@ -36,17 +36,52 @@
     <div class="brand">
       <div class="brand-mark"><img width="50" src="assets/icon.png"></div>
       <h1>Workout Shuffle</h1>
-      <p class="tagline">Randomized workouts, tuned to you.</p>
+      <p class="tagline">Randomized workouts, or not.</p>
+      <p class="tagline">Your choice.</p>
     </div>
-    <button onclick="startWorkout()">Select Workout</button>
-    <button onclick="createWorkoutTemplate()">Create Workout</button>
+    <button onclick="openTemplatesDialog()">My Workout Templates</button>
+    <button onclick="openWorkoutsDialog()">Saved Workouts</button>
+    <button class="secondary" onclick="showPage(PAGES.CreateWorkoutTemplate)">Create new Workout Template</button>
+    <button class="secondary" onclick="showPage(PAGES.WorkoutEditor)">Manually create Workout</button>
+    <button onclick="openDialog('info-dialog')">Info</button>
   </div>
 
-  <dialog id="select-workout-dialog">
-    <h2>Select a Workout</h2>
-    <div id="workout-list"></div>
+  <dialog id="templates-dialog">
+    <h2>My Workout Templates</h2>
+    <div id="templates-list"></div>
     <div class="dialog-actions">
-      <button onclick="closeDialog('select-workout-dialog')">Cancel</button>
+      <button onclick="closeDialog('templates-dialog')">Cancel</button>
+    </div>
+  </dialog>
+
+  <dialog id="workouts-dialog">
+    <h2>Saved Workouts</h2>
+    <div id="workouts-list"></div>
+    <div class="dialog-actions">
+      <button onclick="closeDialog('workouts-dialog')">Cancel</button>
+    </div>
+  </dialog>
+
+  <dialog id="confirm-delete-dialog">
+    <h2>Delete</h2>
+    <p id="confirm-delete-message"></p>
+    <div class="dialog-actions">
+      <button onclick="closeDialog('confirm-delete-dialog')">Cancel</button>
+      <button class="delete-confirm" id="confirm-delete-button">Delete</button>
+    </div>
+  </dialog>
+
+  <dialog id="info-dialog">
+    <h2>Info</h2>
+    <p class="credits-lead">Workout Shuffle</p>
+    <p>Author: <strong>Deccir</strong></p>
+    <ul class="credits-links">
+      <li><a href="https://www.youtube.com/@deccir" target="_blank" rel="noopener">YouTube</a></li>
+      <li><a href="https://deccir.itch.io/" target="_blank" rel="noopener">itch.io</a></li>
+      <li><a href="https://soundcloud.com/deccir" target="_blank" rel="noopener">SoundCloud</a></li>
+    </ul>
+    <div class="dialog-actions">
+      <button onclick="closeDialog('info-dialog')">Close</button>
     </div>
   </dialog>
 

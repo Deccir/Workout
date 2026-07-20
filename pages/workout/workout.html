@@ -12,7 +12,6 @@
   <title>Workout Shuffle - Workout</title>
   <link rel="stylesheet" href="workout.css">
   <link rel="stylesheet" href="../../lib/toaster/toaster.css">
-  <script src="../../main.js"></script>
   <script src="../../loader.js"></script>
   <script src="../../navigation.js"></script>
   <script src="../../lib/toaster/toaster.js"></script>
@@ -26,14 +25,16 @@
     <div id="progressFill"></div>
   </div>
   <h2 id="exerciseLabel"></h2>
+  <p id="setLabel" class="set-label"></p>
   <div class="exercise-media">
     <img id="exerciseImage" alt="Exercise demonstration">
   </div>
   <div class="controls">
     <button class="secondary" onclick="previousExercise()">Go Back</button>
-    <button onclick="togglePauseResume()">Pause</button>
+    <button id="pauseButton" onclick="togglePauseResume()">Pause</button>
     <button class="secondary" onclick="nextExercise()">Next</button>
   </div>
+  <button id="doneButton" onclick="finishReps()" style="display:none">Done</button>
   <button class="cancel-workout" onclick="cancelWorkout()">Cancel Workout</button>
 
 </body>
