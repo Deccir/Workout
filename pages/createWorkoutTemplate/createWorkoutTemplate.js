@@ -1,5 +1,9 @@
+// Exercise templates staged in the builder, keyed by their row element id.
 var preparedExerciseTemplates = {};
-var acceptedOnce = false;
+// True once the user has attempted to confirm a row, which turns on inline
+// validation styling.
+var submitAttempted = false;
+// Row element id currently being edited (null when adding a new row).
 var editRowId = null;
 var rowCounter = 0;
 // Name of the workout currently being edited (null when creating a new one).
@@ -60,18 +64,18 @@ function setOptionalParamsOpen(open) {
 //#region initialize
 
 window.addEventListener("load", () => {
-  getDataPromise()
+  loadAppData()
     .then((data) => {
       fillMuscleSelection(data.muscles);
       fillTypeSelection(data.types);
     })
     .then(() => initializeMultiSelectDropdown());
 
-  var min = document.getElementById("min-difficulty");
-  min.addEventListener("change", updateMatchingExercises);
+  var minDifficulty = document.getElementById("min-difficulty");
+  minDifficulty.addEventListener("change", updateMatchingExercises);
 
-  var max = document.getElementById("max-difficulty");
-  max.addEventListener("change", updateMatchingExercises);
+  var maxDifficulty = document.getElementById("max-difficulty");
+  maxDifficulty.addEventListener("change", updateMatchingExercises);
 
   var muscleSelect = document.getElementById("muscle-select");
   resetSelectedValues(muscleSelect);
@@ -99,7 +103,7 @@ function loadWorkoutForEdit() {
     return;
   }
 
-  var workouts = loadObject("workouts") || {};
+  var workouts = loadFromStorage("workouts") || {};
   var template = workouts[name];
   if (template == null) {
     toast("Workout not found", "error", 5);
@@ -116,7 +120,7 @@ function loadWorkoutForEdit() {
   if (template.setRestTime != null) {
     document.getElementById("set-rest-time-input").value = template.setRestTime;
   }
-  setCountUpdated({ target: document.getElementById("set-count-input") });
+  onSetCountChanged({ target: document.getElementById("set-count-input") });
 
   template.exerciseTemplates.forEach((exerciseTemplate) => {
     addExerciseRow(
@@ -126,6 +130,7 @@ function loadWorkoutForEdit() {
         exerciseTemplate.difficultyMin,
         exerciseTemplate.difficultyMax,
         exerciseTemplate.overwriteTime,
+        exerciseTemplate.overwriteRestTime,
         exerciseTemplate.overwriteSetCount,
         exerciseTemplate.overwriteSetRestTime
       )
@@ -134,31 +139,31 @@ function loadWorkoutForEdit() {
 }
 
 function fillMuscleSelection(muscles) {
-  var container = document.getElementById("muscle-select");
+  var select = document.getElementById("muscle-select");
 
   muscles.forEach((muscle) => {
     var option = document.createElement("option");
     option.value = muscle.name;
     option.textContent = capitalizeWords(muscle.name);
-    container.appendChild(option);
+    select.appendChild(option);
   });
 }
 
 function fillTypeSelection(types) {
-  var container = document.getElementById("type-select");
+  var select = document.getElementById("type-select");
 
   types.forEach((type) => {
     var option = document.createElement("option");
     option.value = type.name;
     option.textContent = capitalizeWords(type.name);
-    container.appendChild(option);
+    select.appendChild(option);
   });
 }
 
 //#endregion
 
 function confirmExerciseRowInput() {
-  acceptedOnce = true;
+  submitAttempted = true;
   if (validateExerciseRowInput() == false) {
     return;
   }
@@ -168,7 +173,7 @@ function confirmExerciseRowInput() {
   var minDifficulty = parseInt(document.getElementById("min-difficulty").value);
   var maxDifficulty = parseInt(document.getElementById("max-difficulty").value);
 
-  getMatchingExercisesPromise(
+  getMatchingExercisesForSelection(
     selectedMuscles,
     selectedTypes,
     minDifficulty,
@@ -191,7 +196,7 @@ function confirmExerciseRowInput() {
         var editedRow = document.getElementById(editRowId);
         editedRow.querySelector(".row-label").textContent =
           exerciseRowSummary(exerciseTemplate);
-        fillSwatch(editedRow.querySelector(".rotes-quadrat"), exerciseTemplate);
+        fillSwatch(editedRow.querySelector(".difficulty-swatch"), exerciseTemplate);
       } else {
         addExerciseRow(
           new ExerciseTemplate(
@@ -257,16 +262,16 @@ function addExerciseRow(exerciseTemplate) {
   var id = "ex_id_" + Date.now() + "" + rowCounter++;
   preparedExerciseTemplates[id] = exerciseTemplate;
 
-  var container = document.getElementById("container");
+  var exerciseList = document.getElementById("exercise-list");
 
   var newRow = document.createElement("div");
   newRow.id = id;
   newRow.classList.add("row");
 
-  var rotesQuadrat = document.createElement("div");
-  rotesQuadrat.classList.add("rotes-quadrat");
-  fillSwatch(rotesQuadrat, exerciseTemplate);
-  newRow.appendChild(rotesQuadrat);
+  var swatch = document.createElement("div");
+  swatch.classList.add("difficulty-swatch");
+  fillSwatch(swatch, exerciseTemplate);
+  newRow.appendChild(swatch);
 
   var label = document.createElement("span");
   label.classList.add("row-label");
@@ -277,7 +282,7 @@ function addExerciseRow(exerciseTemplate) {
   deleteButton.classList.add("delete-button");
   deleteButton.textContent = "Remove";
   deleteButton.addEventListener("click", function () {
-    container.removeChild(newRow);
+    exerciseList.removeChild(newRow);
     delete preparedExerciseTemplates[id];
     document.getElementById("save-workout-button").disabled =
       Object.values(preparedExerciseTemplates).length == 0;
@@ -298,7 +303,7 @@ function addExerciseRow(exerciseTemplate) {
   moveDownButton.addEventListener("click", function () {
     const nextRow = newRow.nextElementSibling;
     if (nextRow) {
-      container.insertBefore(nextRow, newRow);
+      exerciseList.insertBefore(nextRow, newRow);
       setMoveButtons(nextRow);
       setMoveButtons(newRow);
     }
@@ -312,19 +317,19 @@ function addExerciseRow(exerciseTemplate) {
   moveUpButton.addEventListener("click", function () {
     const previousRow = newRow.previousElementSibling;
     if (previousRow) {
-      container.insertBefore(newRow, previousRow);
+      exerciseList.insertBefore(newRow, previousRow);
       setMoveButtons(previousRow);
       setMoveButtons(newRow);
     }
   });
-  moveUpButton.disabled = container.childNodes.length == 0;
+  moveUpButton.disabled = exerciseList.childNodes.length == 0;
   newRow.appendChild(moveUpButton);
 
-  if (container.childNodes.length > 0) {
-    container.lastChild.querySelector(".move-down-button").disabled = false;
+  if (exerciseList.childNodes.length > 0) {
+    exerciseList.lastChild.querySelector(".move-down-button").disabled = false;
   }
 
-  container.appendChild(newRow);
+  exerciseList.appendChild(newRow);
   document.getElementById("save-workout-button").disabled = false;
 }
 
@@ -338,27 +343,25 @@ function setMoveButtons(row) {
 function validateExerciseRowInput() {
   var hasError = false;
 
-  if (acceptedOnce == true) {
-    var selectedMusclesDropdown = document.getElementById(
-      "muscle-select-dropdown"
-    );
+  if (submitAttempted == true) {
+    var muscleDropdown = document.getElementById("muscle-select-dropdown");
     var selectedMuscles = getSelectValuesBySelectId("muscle-select");
     if (selectedMuscles == null || selectedMuscles.length == 0) {
       hasError = true;
-      selectedMusclesDropdown.classList.add("has-error");
+      muscleDropdown.classList.add("has-error");
     } else {
-      selectedMusclesDropdown.classList.remove("has-error");
+      muscleDropdown.classList.remove("has-error");
     }
   }
 
-  if (acceptedOnce == true) {
-    var selectedTypesDropdown = document.getElementById("type-select-dropdown");
+  if (submitAttempted == true) {
+    var typeDropdown = document.getElementById("type-select-dropdown");
     var selectedTypes = getSelectValuesBySelectId("type-select");
     if (selectedTypes == null) {
       hasError = true;
-      selectedTypesDropdown.classList.add("has-error");
+      typeDropdown.classList.add("has-error");
     } else {
-      selectedTypesDropdown.classList.remove("has-error");
+      typeDropdown.classList.remove("has-error");
     }
   }
 
@@ -392,7 +395,7 @@ function updateMatchingExercises() {
 
   validateExerciseRowInput();
 
-  getMatchingExercisesPromise(
+  getMatchingExercisesForSelection(
     selectedMuscles,
     selectedTypes,
     minDifficulty,
@@ -439,7 +442,9 @@ function editExerciseRowInput(exerciseTemplate, rowElement) {
   openDialog("exercise-template-dialog");
 }
 
-function getMatchingExercisesPromise(
+// Resolve the exercises matching the current selection, or an empty promise
+// when the selection is invalid (no muscles, or an invalid difficulty range).
+function getMatchingExercisesForSelection(
   selectedMuscles,
   selectedTypes,
   minDifficulty,
@@ -453,7 +458,7 @@ function getMatchingExercisesPromise(
     return Promise.resolve();
   }
 
-  return getDataPromise().then((data) =>
+  return loadAppData().then((data) =>
     findMatchingExercises(
       data,
       selectedMuscles,
@@ -476,7 +481,7 @@ function saveWorkout() {
     enteredName = "Workout " + timeDifference;
   }
 
-  var existingWorkouts = loadObject("workouts");
+  var existingWorkouts = loadFromStorage("workouts");
   if (existingWorkouts == null) {
     existingWorkouts = {};
   }
@@ -498,8 +503,8 @@ function saveWorkout() {
     delete existingWorkouts[editingWorkoutName];
   }
 
-  var container = document.getElementById("container");
-  var orderedExerciseTemplates = Array.from(container.childNodes).map(
+  var exerciseList = document.getElementById("exercise-list");
+  var orderedExerciseTemplates = Array.from(exerciseList.childNodes).map(
     (child) => preparedExerciseTemplates[child.id]
   );
 
@@ -513,13 +518,14 @@ function saveWorkout() {
     parseInt(document.getElementById("circuit-count-input").value)
   );
 
-  saveObject("workouts", existingWorkouts);
+  saveToStorage("workouts", existingWorkouts);
   closeDialog("save-dialog");
 
-  showPage(PAGES.StartMenu);
+  showPage(PAGES.Home);
 }
 
-function setCountUpdated(event) {
+// Disable the "rest between sets" input when there is only a single set.
+function onSetCountChanged(event) {
   const input = event.target;
   const value = parseInt(input.value);
   if (isNaN(value) || value == 1) {
@@ -547,17 +553,9 @@ function resetRowDialog() {
   });
   setOptionalParamsOpen(false);
 
-  acceptedOnce = false;
+  submitAttempted = false;
   editRowId = null;
   updateMatchingExercises();
-}
-
-function openDialog(id) {
-  document.getElementById(id).showModal();
-}
-
-function closeDialog(id) {
-  document.getElementById(id).close();
 }
 
 //#endregion

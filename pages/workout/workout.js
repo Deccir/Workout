@@ -1,5 +1,5 @@
 // DOM references (resolved on load)
-var gifImage;
+var exerciseImage;
 var progressBar;
 var progressFill;
 var exerciseLabel;
@@ -25,12 +25,12 @@ var REST_COLOR = '#94ffff';
 var PREPARE_TIME = 10; // seconds of "get ready" before the first exercise
 
 window.addEventListener('load', function () {
-  gifImage = document.getElementById('tutorialVideo');
+  exerciseImage = document.getElementById('exerciseImage');
   progressBar = document.getElementById('progressBar');
   progressFill = document.getElementById('progressFill');
   exerciseLabel = document.getElementById('exerciseLabel');
 
-  getDataPromise().then((data) => {
+  loadAppData().then((data) => {
     exercises = data.exercises;
     currentWorkout = loadWorkout(data);
 
@@ -48,7 +48,7 @@ window.addEventListener('load', function () {
 // one, else a small built-in demo so the page still works standalone.
 function loadWorkout(data) {
   var name = getURLParameter('workout');
-  var savedWorkouts = loadObject('workouts') || {};
+  var savedWorkouts = loadFromStorage('workouts') || {};
   var template = name != null ? savedWorkouts[name] : Object.values(savedWorkouts)[0];
 
   if (template != null) {
@@ -68,8 +68,8 @@ function startPreparePhase() {
   currentPhase = 'prepare';
 
   var exercise = exercises[currentWorkout.exerciseNames[0]];
-  gifImage.src = exercise.link;
-  gifImage.alt = exercise.name;
+  exerciseImage.src = exercise.link;
+  exerciseImage.alt = exercise.name;
   exerciseLabel.textContent = 'Get ready: ' + exercise.name;
   progressFill.style.backgroundColor = REST_COLOR;
 
@@ -81,8 +81,8 @@ function startExercisePhase() {
   currentPhase = 'exercise';
 
   var exercise = currentExercise();
-  gifImage.src = exercise.link;
-  gifImage.alt = exercise.name;
+  exerciseImage.src = exercise.link;
+  exerciseImage.alt = exercise.name;
   exerciseLabel.textContent =
     (currentExerciseIndex + 1) + '/' + currentWorkout.exerciseNames.length +
     ' – ' + exercise.name;
@@ -125,9 +125,9 @@ function nextExercise() {
   startExercisePhase();
 }
 
-function cancelTraining() {
+function cancelWorkout() {
   isPaused = true;
-  showPage(PAGES.StartMenu);
+  showPage(PAGES.Home);
 }
 
 function startTimer(durationMs) {

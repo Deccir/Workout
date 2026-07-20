@@ -22,7 +22,7 @@
 
 <body class="dark-theme">
   <div id="toaster-container" class="toaster-container"></div>
-  <div id="container" class="exercise-container"></div>
+  <div id="exercise-list" class="exercise-container"></div>
 
   <button onclick="openDialog('exercise-template-dialog')">Add Exercise</button>
   <button onclick="openDialog('save-dialog')">Save Workout</button>
@@ -128,7 +128,7 @@
     <div class="form-field">
       <label for="set-count-input">how many sets of each exercise should be done:</label>
       <input type="number" id="set-count-input" class="form-input" min="1" value="1" defaultvalue="1"
-        onchange="setCountUpdated(event)">
+        onchange="onSetCountChanged(event)">
     </div>
 
     <div class="form-field disabled" id="set-rest-time-field">

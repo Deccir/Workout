@@ -20,7 +20,7 @@ body {
   border-radius: var(--border-radius--base);
 }
 
-.rotes-quadrat {
+.difficulty-swatch {
   display: flex;
   flex-direction: column;
   height: 24px;

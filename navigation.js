@@ -2,17 +2,27 @@
 // (site root or a GitHub Pages project subdir like /Workout/).
 const APP_BASE = new URL('.', document.currentScript.src).href;
 
-PAGES = {
-  StartMenu: APP_BASE,
-  CreateTraining: APP_BASE + 'pages/createWorkoutTemplate/createWorkoutTemplate.html',
-  Training: APP_BASE + 'pages/workout/workout.html'
+const PAGES = {
+  Home: APP_BASE,
+  CreateWorkout: APP_BASE + 'pages/createWorkoutTemplate/createWorkoutTemplate.html',
+  RunWorkout: APP_BASE + 'pages/workout/workout.html'
 }
 
-function showPage(pageLink) {
-  window.location.href = pageLink
+function showPage(pageUrl) {
+  window.location.href = pageUrl
 }
 
 function getURLParameter(parameterName) {
   var urlParams = new URLSearchParams(window.location.search);
   return urlParams.get(parameterName);
+}
+
+// ---------- Dialog helpers (shared by every page) ----------
+
+function openDialog(id) {
+  document.getElementById(id).showModal();
+}
+
+function closeDialog(id) {
+  document.getElementById(id).close();
 }

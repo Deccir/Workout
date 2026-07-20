@@ -1,6 +1,6 @@
 // Open a dialog listing saved workouts so the user can pick which one to run.
 function startWorkout() {
-  var savedWorkouts = loadObject('workouts') || {};
+  var savedWorkouts = loadFromStorage('workouts') || {};
   var names = Object.keys(savedWorkouts);
   var list = document.getElementById('workout-list');
   list.innerHTML = '';
@@ -22,7 +22,7 @@ function startWorkout() {
       var startButton = document.createElement('button');
       startButton.textContent = 'Start';
       startButton.addEventListener('click', () => {
-        showPage(PAGES.Training + '?workout=' + encodeURIComponent(name));
+        showPage(PAGES.RunWorkout + '?workout=' + encodeURIComponent(name));
       });
       row.appendChild(startButton);
 
@@ -30,7 +30,7 @@ function startWorkout() {
       editButton.textContent = 'Edit';
       editButton.classList.add('secondary');
       editButton.addEventListener('click', () => {
-        showPage(PAGES.CreateTraining + '?workout=' + encodeURIComponent(name));
+        showPage(PAGES.CreateWorkout + '?workout=' + encodeURIComponent(name));
       });
       row.appendChild(editButton);
 
@@ -41,15 +41,7 @@ function startWorkout() {
   openDialog('select-workout-dialog');
 }
 
-// Funktion für den Knopf 'Plan erstellen' (noch ohne spezifische Funktion)
+// Navigate to the workout creation page.
 function createWorkoutTemplate() {
-  showPage(PAGES.CreateTraining)
-}
-
-function openDialog(id) {
-  document.getElementById(id).showModal();
-}
-
-function closeDialog(id) {
-  document.getElementById(id).close();
+  showPage(PAGES.CreateWorkout)
 }

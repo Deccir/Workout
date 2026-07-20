@@ -24,14 +24,14 @@ body {
   transition: width 120ms linear, background-color 200ms ease;
 }
 
-#tutorialVideo {
+#exerciseImage {
   max-width: 100%;
   border-radius: 12px;
   box-shadow: var(--shadow-2);
   background: var(--color-surface);
 }
 
-#tutorialVideo + div,
+#exerciseImage + div,
 body > div:last-of-type {
   margin-top: 20px;
 }
