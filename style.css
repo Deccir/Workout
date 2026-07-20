@@ -3,38 +3,44 @@
 @import url(lib/accordion/accordion.css);
 
 :root {
-  --color-bg: #1e2126;
-  --color-surface: #2a2e35;
-  --color-surface-raised: #333941;
-  --color-border: #454b54;
-  --color-border-strong: #5a616b;
+  --color-bg: #12151b;
+  --color-bg-glow: #1a2f22;
+  --color-surface: #1c212a;
+  --color-surface-raised: #252b35;
+  --color-border: #333b47;
+  --color-border-strong: #4a5361;
 
-  --color-text: #e6e8ea;
-  --color-text-muted: #9aa1ab;
-  --color-text-inverse: #14161a;
+  --color-text: #eceef1;
+  --color-text-muted: #9aa3af;
+  --color-text-inverse: #0c1207;
 
-  --color-accent: #32cd32;
-  --color-accent-hover: #46e046;
-  --color-accent-dim: #2aa32a;
-  --color-danger: #cc5555;
-  --color-danger-hover: #e06666;
-  --color-focus: #32cd32;
-  --color-disabled: #5a616b;
+  --color-accent: #2fc85a;
+  --color-accent-hover: #3fd96a;
+  --color-accent-dim: #249a49;
+  --color-accent-soft: rgba(47, 200, 90, 0.16);
+  --gradient-accent: linear-gradient(180deg, #3ad365 0%, #2bbd51 100%);
+  --gradient-accent-hover: linear-gradient(180deg, #4ce176 0%, #34c95c 100%);
 
-  /* backwards-compatible aliases used elsewhere */
+  --color-danger: #e2606b;
+  --color-danger-hover: #ec7480;
+  --color-focus: #2fc85a;
+  --color-disabled: #4a5361;
+
+  /* backwards-compatible aliases used by lib CSS + page CSS */
   --color-background: var(--color-surface);
-  --color-background--option: var(--color-surface);
-  --color-background--option--hover: #3a4048;
+  --color-background--option: var(--color-surface-raised);
+  --color-background--option--hover: #313945;
   --color-text--normal: var(--color-text);
   --color-text--grey: var(--color-text-muted);
   --color-text--red: var(--color-danger);
   --color-text--placeholder: var(--color-text-muted);
 
-  --border-radius--base: 8px;
-  --border-radius--small: 5px;
+  --border-radius--base: 10px;
+  --border-radius--small: 6px;
   --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.35);
-  --shadow-2: 0 8px 28px rgba(0, 0, 0, 0.5);
-  --transition: 140ms ease;
+  --shadow-2: 0 12px 34px rgba(0, 0, 0, 0.5);
+  --shadow-accent: 0 6px 18px rgba(47, 200, 90, 0.28);
+  --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -43,7 +49,7 @@
 
 body {
   margin: 0;
-  padding: 24px 20px 48px;
+  padding: 28px 20px 56px;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 1.5;
@@ -51,9 +57,12 @@ body {
 }
 
 .dark-theme {
-  background-color: var(--color-bg);
-  color: var(--color-text);
   min-height: 100vh;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  background-image:
+    radial-gradient(1100px 620px at 50% -12%, var(--color-bg-glow) 0%, transparent 62%);
+  background-attachment: fixed;
 }
 
 .dark-theme dialog {
@@ -73,13 +82,20 @@ h1 {
   margin: 0 0 20px;
 }
 
+h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
 /* ---------- Buttons ---------- */
 button {
   appearance: none;
   font: inherit;
   font-weight: 600;
+  letter-spacing: 0.01em;
   color: var(--color-text-inverse);
-  background: var(--color-accent);
+  background: var(--gradient-accent);
   border: none;
   border-radius: var(--border-radius--base);
   padding: 11px 20px;
@@ -91,9 +107,9 @@ button {
 }
 
 button:hover {
-  background: var(--color-accent-hover);
+  background: var(--gradient-accent-hover);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-2);
+  box-shadow: var(--shadow-accent);
 }
 
 button:active {
@@ -108,54 +124,130 @@ button[disabled] {
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
-/* Danger / cancel actions */
-button[onclick*="cancel" i],
-button[onclick*="Cancel" i] {
-  background: transparent;
-  color: var(--color-danger);
-  box-shadow: inset 0 0 0 1.5px var(--color-danger);
-}
-
-button[onclick*="cancel" i]:hover,
-button[onclick*="Cancel" i]:hover {
-  background: var(--color-danger);
-  color: #fff;
-  box-shadow: var(--shadow-2);
-}
-
-/* Secondary "close dialog" cancel buttons: neutral outline */
+/* Neutral / secondary outline buttons */
+button.secondary,
 button[onclick*="closeDialog" i] {
   background: transparent;
   color: var(--color-text);
   box-shadow: inset 0 0 0 1.5px var(--color-border-strong);
 }
 
+button.secondary:hover,
 button[onclick*="closeDialog" i]:hover {
   background: var(--color-surface-raised);
   color: var(--color-text);
+  transform: translateY(-1px);
   box-shadow: inset 0 0 0 1.5px var(--color-border-strong), var(--shadow-1);
+}
+
+/* Danger / cancel actions */
+button[onclick*="cancel" i] {
+  background: transparent;
+  color: var(--color-danger);
+  box-shadow: inset 0 0 0 1.5px var(--color-danger);
+}
+
+button[onclick*="cancel" i]:hover {
+  background: var(--color-danger);
+  color: #fff;
+  box-shadow: var(--shadow-2);
+}
+
+/* ---------- Page header (shared) ---------- */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.back-link {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--color-text);
+  background: var(--color-surface);
+  box-shadow: inset 0 0 0 1px var(--color-border);
+}
+
+.back-link:hover {
+  background: var(--color-surface-raised);
+  box-shadow: inset 0 0 0 1px var(--color-border-strong);
+}
+
+/* ---------- Action bar (shared) ---------- */
+.action-bar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.action-bar button {
+  flex: 1;
+  margin: 0;
+  min-width: 140px;
 }
 
 /* ---------- Start menu ---------- */
 #start-menu {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  max-width: 340px;
+  gap: 12px;
+  max-width: 360px;
   margin: 12vh auto 0;
-  padding: 28px 24px;
+  padding: 32px 26px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 16px;
+  border-radius: 20px;
   box-shadow: var(--shadow-2);
 }
 
-#start-menu h1 {
+.brand {
   text-align: center;
-  margin: 0 0 8px;
+  margin-bottom: 12px;
+}
+
+.brand-mark {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  border-radius: 18px;
+  background: var(--color-accent-soft);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255, 0.35);
+
+  > img {
+    border-radius: 18px;
+  }
+}
+
+#start-menu h1 {
+  margin: 0;
+  font-size: 1.7rem;
+}
+
+.tagline {
+  margin: 6px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
 }
 
 #start-menu button {
@@ -173,7 +265,7 @@ button[onclick*="closeDialog" i]:hover {
 #start-menu button:last-child:hover {
   background: var(--color-accent);
   color: var(--color-text-inverse);
-  box-shadow: var(--shadow-2);
+  box-shadow: var(--shadow-accent);
 }
 
 /* ---------- Workout selection dialog ---------- */
@@ -181,7 +273,7 @@ button[onclick*="closeDialog" i]:hover {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 0;
+  padding: 12px 4px;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -192,18 +284,6 @@ button[onclick*="closeDialog" i]:hover {
 .workout-name {
   flex: 1;
   font-weight: 600;
-}
-
-button.secondary {
-  background: transparent;
-  color: var(--color-text);
-  box-shadow: inset 0 0 0 1.5px var(--color-border-strong);
-}
-
-button.secondary:hover {
-  background: var(--color-surface-raised);
-  color: var(--color-text);
-  box-shadow: inset 0 0 0 1.5px var(--color-border-strong), var(--shadow-1);
 }
 
 /* ---------- Forms ---------- */
@@ -234,23 +314,25 @@ label {
 }
 
 .form-field {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 
   .form-input {
-    margin: 4px 0;
-    padding: 9px 11px;
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    margin: 6px 0 0;
+    padding: 10px 12px;
     border-radius: var(--border-radius--base);
     border: 1px solid var(--color-border);
     background: var(--color-surface-raised);
     color: var(--color-text);
-    max-width: 360px;
     transition: border-color var(--transition), box-shadow var(--transition);
   }
 
   .form-input:focus {
     border-color: var(--color-accent);
     outline: none;
-    box-shadow: 0 0 0 2px rgba(50, 205, 50, 0.25);
+    box-shadow: 0 0 0 3px var(--color-accent-soft);
   }
 
   &.disabled {
@@ -263,20 +345,71 @@ label {
   }
 }
 
+/* Two fields side by side (e.g. difficulty min/max) */
+.field-row {
+  display: flex;
+  gap: 14px;
+}
+
+.field-row .form-field {
+  flex: 1;
+}
+
+.field-row .form-input {
+  max-width: none;
+}
+
 /* ---------- Dialogs ---------- */
 dialog {
   border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: 24px;
+  border-radius: 18px;
+  padding: 26px;
   box-shadow: var(--shadow-2);
   max-width: min(560px, 92vw);
 }
 
 dialog h2 {
-  margin: 0 0 16px;
+  margin: 0 0 18px;
+}
+
+dialog[open] {
+  animation: dialog-in 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
 }
 
 dialog::backdrop {
   background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(3px);
+}
+
+/* Footer row for dialog action buttons */
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.dialog-actions button {
+  margin: 0;
+}
+
+/* ---------- Lib overrides for the dark theme ---------- */
+/* Light-stroke dropdown chevron (the lib ships a dark one, invisible here) */
+.multiselect-dropdown {
+  background-image:
+    url("data:image/svg+xml;%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%239aa3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 10px center !important;
+  padding: 8px 38px 8px 8px;
+}
+
+.accordion .content.open {
+  border-color: var(--color-border) !important;
 }

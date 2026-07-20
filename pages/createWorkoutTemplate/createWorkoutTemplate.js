@@ -278,42 +278,21 @@ function addExerciseRow(exerciseTemplate) {
   label.textContent = exerciseRowSummary(exerciseTemplate);
   newRow.appendChild(label);
 
-  var deleteButton = document.createElement("button");
-  deleteButton.classList.add("delete-button");
-  deleteButton.textContent = "Remove";
-  deleteButton.addEventListener("click", function () {
-    exerciseList.removeChild(newRow);
-    delete preparedExerciseTemplates[id];
-    document.getElementById("save-workout-button").disabled =
-      Object.values(preparedExerciseTemplates).length == 0;
-  });
-  newRow.appendChild(deleteButton);
+  var actions = document.createElement("div");
+  actions.classList.add("row-actions");
+  newRow.appendChild(actions);
 
-  var editButton = document.createElement("button");
-  editButton.classList.add("edit-button");
-  editButton.textContent = "Edit";
-  editButton.addEventListener("click", function () {
-    editExerciseRowInput(exerciseTemplate, newRow);
-  });
-  newRow.appendChild(editButton);
+  var makeIconButton = (className, glyph, label) => {
+    var button = document.createElement("button");
+    button.classList.add("icon-button", className);
+    button.textContent = glyph;
+    button.title = label;
+    button.setAttribute("aria-label", label);
+    actions.appendChild(button);
+    return button;
+  };
 
-  var moveDownButton = document.createElement("button");
-  moveDownButton.classList.add("move-down-button");
-  moveDownButton.textContent = "Move Down";
-  moveDownButton.addEventListener("click", function () {
-    const nextRow = newRow.nextElementSibling;
-    if (nextRow) {
-      exerciseList.insertBefore(nextRow, newRow);
-      setMoveButtons(nextRow);
-      setMoveButtons(newRow);
-    }
-  });
-  moveDownButton.disabled = true;
-  newRow.appendChild(moveDownButton);
-
-  var moveUpButton = document.createElement("button");
-  moveUpButton.classList.add("move-up-button");
-  moveUpButton.textContent = "Move Up";
+  var moveUpButton = makeIconButton("move-up-button", "↑", "Move up");
   moveUpButton.addEventListener("click", function () {
     const previousRow = newRow.previousElementSibling;
     if (previousRow) {
@@ -323,7 +302,30 @@ function addExerciseRow(exerciseTemplate) {
     }
   });
   moveUpButton.disabled = exerciseList.childNodes.length == 0;
-  newRow.appendChild(moveUpButton);
+
+  var moveDownButton = makeIconButton("move-down-button", "↓", "Move down");
+  moveDownButton.addEventListener("click", function () {
+    const nextRow = newRow.nextElementSibling;
+    if (nextRow) {
+      exerciseList.insertBefore(nextRow, newRow);
+      setMoveButtons(nextRow);
+      setMoveButtons(newRow);
+    }
+  });
+  moveDownButton.disabled = true;
+
+  var editButton = makeIconButton("edit-button", "✎", "Edit");
+  editButton.addEventListener("click", function () {
+    editExerciseRowInput(exerciseTemplate, newRow);
+  });
+
+  var deleteButton = makeIconButton("delete-button", "✕", "Remove");
+  deleteButton.addEventListener("click", function () {
+    exerciseList.removeChild(newRow);
+    delete preparedExerciseTemplates[id];
+    document.getElementById("save-workout-button").disabled =
+      Object.values(preparedExerciseTemplates).length == 0;
+  });
 
   if (exerciseList.childNodes.length > 0) {
     exerciseList.lastChild.querySelector(".move-down-button").disabled = false;

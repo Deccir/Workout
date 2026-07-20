@@ -33,7 +33,11 @@
 <body class="dark-theme">
   <div id="toaster-container" class="toaster-container"></div>
   <div id="start-menu">
-    <h1>Workout Shuffle</h1>
+    <div class="brand">
+      <div class="brand-mark"><img width="50" src="assets/icon.png"></div>
+      <h1>Workout Shuffle</h1>
+      <p class="tagline">Randomized workouts, tuned to you.</p>
+    </div>
     <button onclick="startWorkout()">Select Workout</button>
     <button onclick="createWorkoutTemplate()">Create Workout</button>
   </div>
@@ -41,7 +45,9 @@
   <dialog id="select-workout-dialog">
     <h2>Select a Workout</h2>
     <div id="workout-list"></div>
-    <button onclick="closeDialog('select-workout-dialog')">Cancel</button>
+    <div class="dialog-actions">
+      <button onclick="closeDialog('select-workout-dialog')">Cancel</button>
+    </div>
   </dialog>
 
 </body>

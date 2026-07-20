@@ -22,32 +22,46 @@
 
 <body class="dark-theme">
   <div id="toaster-container" class="toaster-container"></div>
+
+  <header class="page-header">
+    <button class="back-link" onclick="showPage(PAGES.Home)" aria-label="Back to menu">←</button>
+    <h1>Create Workout</h1>
+  </header>
+
   <div id="exercise-list" class="exercise-container"></div>
 
-  <button onclick="openDialog('exercise-template-dialog')">Add Exercise</button>
-  <button onclick="openDialog('save-dialog')">Save Workout</button>
+  <div class="action-bar">
+    <button class="secondary" onclick="openDialog('exercise-template-dialog')">+ Add Exercise</button>
+    <button onclick="openDialog('save-dialog')">Save Workout</button>
+  </div>
 
   <dialog id="exercise-template-dialog">
+    <h2>Add exercise</h2>
     <div class="form-field">
+      <label for="muscle-select">Muscle groups</label>
       <select multiple search='true' id="muscle-select" placeholder="Muscle group"></select>
     </div>
 
     <div class="form-field">
+      <label for="type-select">Exercise types</label>
       <select multiple search='true' id="type-select" placeholder="Exercise Type"></select>
     </div>
 
     <!-- ToDo: Maybe a small info button with example exercises for each difficulty -->
-    <div class="form-field">
-      <label for="min-difficulty">Please enter the minimum difficulty (0 is easy, 8 is extremely hard):</label>
-      <input type="number" id="min-difficulty" class="form-input" min="0" value="0" defaultvalue="0">
+    <p class="hint">Difficulty ranges from 0 (easy) to 8 (extremely hard).</p>
+    <div class="field-row">
+      <div class="form-field">
+        <label for="min-difficulty">Min difficulty</label>
+        <input type="number" id="min-difficulty" class="form-input" min="0" value="0" defaultvalue="0">
+      </div>
+
+      <div class="form-field">
+        <label for="max-difficulty">Max difficulty</label>
+        <input type="number" id="max-difficulty" class="form-input" min="0" value="8" defaultvalue="8">
+      </div>
     </div>
 
-    <div class="form-field">
-      <label for="max-difficulty">Please enter the maximum difficulty (0 is easy, 8 is extremely hard):</label>
-      <input type="number" id="max-difficulty" class="form-input" min="0" value="8" defaultvalue="8">
-    </div>
-
-    <div><span id="matching-exercises">0</span> Exercises are matching your configuration.</div>
+    <p class="match-count"><span id="matching-exercises">0</span> exercises match your configuration.</p>
 
     <div class="form-field">
       <label for="use-optional-exercise-param">Use Optional Parameters</label>
@@ -100,11 +114,14 @@
       </div>
     </div>
 
-    <button onclick="closeDialog('exercise-template-dialog')">Cancel</button>
-    <button onclick="confirmExerciseRowInput()" id="confirm-exercise-button" disabled="true">OK</button>
+    <div class="dialog-actions">
+      <button onclick="closeDialog('exercise-template-dialog')">Cancel</button>
+      <button onclick="confirmExerciseRowInput()" id="confirm-exercise-button" disabled="true">Add</button>
+    </div>
   </dialog>
 
   <dialog id="save-dialog">
+    <h2>Workout settings</h2>
     <div class="form-field">
       <label for="name-input">optional name for this Workout:</label>
       <input type="text" id="name-input" class="form-input">
@@ -136,8 +153,10 @@
       <input type="number" id="set-rest-time-input" class="form-input" min="1" value="120" defaultvalue="120" disabled>
     </div>
 
-    <button onclick="closeDialog('save-dialog')">Cancel</button>
-    <button onclick="saveWorkout()" id="save-workout-button" disabled="true">OK</button>
+    <div class="dialog-actions">
+      <button onclick="closeDialog('save-dialog')">Cancel</button>
+      <button onclick="saveWorkout()" id="save-workout-button" disabled="true">Save</button>
+    </div>
   </dialog>
 </body>
 

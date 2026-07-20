@@ -26,15 +26,15 @@
     <div id="progressFill"></div>
   </div>
   <h2 id="exerciseLabel"></h2>
-  <div>
+  <div class="exercise-media">
     <img id="exerciseImage" alt="Exercise demonstration">
   </div>
-  <div>
-    <button onclick="previousExercise()">Go Back</button>
-    <button onclick="nextExercise()">Next</button>
+  <div class="controls">
+    <button class="secondary" onclick="previousExercise()">Go Back</button>
     <button onclick="togglePauseResume()">Pause</button>
-    <button onclick="cancelWorkout()">Cancel Workout</button>
+    <button class="secondary" onclick="nextExercise()">Next</button>
   </div>
+  <button class="cancel-workout" onclick="cancelWorkout()">Cancel Workout</button>
 
 </body>
 
