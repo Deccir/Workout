@@ -1,142 +1,158 @@
-// Das img-Element, in dem das aktuelle Gif angezeigt wird
+// DOM references (resolved on load)
 var gifImage;
-
-// Die Indexvariable, um das aktuelle Gif zu verfolgen
-var currentExerciseIndex = 0;
-
-// Die Progress-Bar-Elemente
 var progressBar;
 var progressFill;
+var exerciseLabel;
 
-// Variable, um den Pausenstatus der Progress-Bar zu verfolgen
+// Loaded data + the workout being run
+var exercises = null;
+var currentWorkout = null;
+var currentExerciseIndex = 0;
+
+// Timer / phase state
+var isResting = false;
 var isPaused = false;
-
-// Variable für die 15-Sekunden-Dauer
-var duration = 5000; // Dauer in Millisekunden (15 Sekunden)
+var duration = 0; // current phase length in ms
 var startTime = 0;
 var endTime = 0;
-var pausedTime = 0;
+var pausedAt = 0;
 
-var exercises = null
-var currentWorkout = null
+var REST_COLOR = '#94ffff';
 
 window.addEventListener('load', function () {
   gifImage = document.getElementById('tutorialVideo');
   progressBar = document.getElementById('progressBar');
   progressFill = document.getElementById('progressFill');
+  exerciseLabel = document.getElementById('exerciseLabel');
 
-  getDataPromise()
-    .then(data => exercises = data.exercises)
-    .then(data => currentWorkout = new Workout('test', ['Stick Dislocation', 'Push up'], 40, 15))
-    .then(data => showCurrentExercise());
+  getDataPromise().then((data) => {
+    exercises = data.exercises;
+    currentWorkout = loadWorkout(data);
+
+    if (currentWorkout == null || currentWorkout.exerciseNames.length == 0) {
+      toast('No workout available to run', 'error', 5);
+      exerciseLabel.textContent = 'No workout available';
+      return;
+    }
+
+    startExercisePhase();
+  });
 });
 
-// Funktion zum Anzeigen des aktuellen Gifs
-function showCurrentExercise() {
-  progressFill.style.width = '0%';
+// Resolve which workout to run: the one named in the URL, else the first saved
+// one, else a small built-in demo so the page still works standalone.
+function loadWorkout(data) {
+  var name = getURLParameter('workout');
+  var savedWorkouts = loadObject('workouts') || {};
+  var template = name != null ? savedWorkouts[name] : Object.values(savedWorkouts)[0];
 
-  gifImage.src = exercises[currentWorkout.exerciseNames[currentExerciseIndex]].link;
-  gifImage.alt = 'Exercise ' + (currentExerciseIndex + 1);
-
-  startProgressBar();
-  
-  speak(currentWorkout.exerciseNames[currentExerciseIndex]);
-}
-
-// Funktion zum Navigieren zum vorherigen Gif
-function previousExercise() {
-  currentExerciseIndex = (currentExerciseIndex - 1 + currentWorkout.exerciseNames.length) % currentWorkout.exerciseNames.length;
-  showCurrentExercise();
-}
-
-// Funktion zum Navigieren zum nächsten Gif
-function nextExercise() {
-  currentExerciseIndex = (currentExerciseIndex + 1) % currentWorkout.exerciseNames.length;
-  showCurrentExercise();
-}
-
-// Funktion zum Abbrechen des Trainings (führt zurück zum Startmenü)
-function cancelTraining() {
-  // Stoppe den Fortschritt der Progress-Bar und setze die Zeitgeber zurück
-  isPaused = true;
-  startTime = endTime = pausedTime = 0
-
-  // Navigiere zurück zur 
-  showPage(PAGES.StartMenu)
-}
-
-// Funktion zum Starten der Progress-Bar
-function startProgressBar() {
-  pausedTime = 0;
-  startTime = new Date().getTime() - pausedTime;
-  endTime = startTime + duration;
-  isPaused = false
-  updateProgressBar();
-}
-
-// Funktion zum Aktualisieren der Progress-Bar
-function updateProgressBar() {
-  if (isPaused) {
-    return
+  if (template != null) {
+    return buildWorkoutFromTemplate(template, data);
   }
 
-  var currentTime = new Date().getTime();
-  if (currentTime < endTime) {
-    // Berechne den Fortschritt in Prozent
-    var progress = ((currentTime - startTime) / duration) * 100;
-    progressFill.style.width = progress + '%';
-    setTimeout(updateProgressBar, 10);
+  return new Workout('Demo', ['Stick Dislocation', 'Push up'], 40, 15);
+}
+
+function currentExercise() {
+  return exercises[currentWorkout.exerciseNames[currentExerciseIndex]];
+}
+
+function startExercisePhase() {
+  isResting = false;
+
+  var exercise = currentExercise();
+  gifImage.src = exercise.link;
+  gifImage.alt = exercise.name;
+  exerciseLabel.textContent =
+    (currentExerciseIndex + 1) + '/' + currentWorkout.exerciseNames.length +
+    ' – ' + exercise.name;
+  progressFill.style.backgroundColor = difficultyToColor(exercise.difficulty);
+
+  speak(exercise.name);
+  startTimer(currentWorkout.exerciseTime * 1000);
+}
+
+function startRestPhase() {
+  isResting = true;
+
+  exerciseLabel.textContent = 'Rest';
+  progressFill.style.backgroundColor = REST_COLOR;
+
+  speak('Rest');
+  startTimer(currentWorkout.restTime * 1000);
+}
+
+// Advance from whatever the current phase is to the next one.
+function advancePhase() {
+  if (!isResting && currentWorkout.restTime > 0) {
+    startRestPhase();
   } else {
-    // Setze den Fortschritt auf 100 %, wenn die Dauer abgelaufen ist
-    progressFill.style.width = '100%';
     nextExercise();
   }
 }
 
-// Funktion zum Pausieren/Weiterführen der Progress-Bar
+function previousExercise() {
+  var count = currentWorkout.exerciseNames.length;
+  currentExerciseIndex = (currentExerciseIndex - 1 + count) % count;
+  startExercisePhase();
+}
+
+function nextExercise() {
+  currentExerciseIndex =
+    (currentExerciseIndex + 1) % currentWorkout.exerciseNames.length;
+  startExercisePhase();
+}
+
+function cancelTraining() {
+  isPaused = true;
+  showPage(PAGES.StartMenu);
+}
+
+function startTimer(durationMs) {
+  duration = durationMs;
+  isPaused = false;
+  startTime = Date.now();
+  endTime = startTime + duration;
+  progressFill.style.width = '0%';
+  tick();
+}
+
+function tick() {
+  if (isPaused) {
+    return;
+  }
+
+  var now = Date.now();
+  if (now < endTime) {
+    progressFill.style.width = ((now - startTime) / duration) * 100 + '%';
+    setTimeout(tick, 50);
+  } else {
+    progressFill.style.width = '100%';
+    advancePhase();
+  }
+}
+
 function togglePauseResume() {
   var pauseResumeButton = document.querySelector('button[onclick="togglePauseResume()"]');
-
-  // if (startTime == endTime && startTime == 0) {
-  //   startProgressBar();
-  //   pauseResumeButton.innerHTML = 'Pause';
-  //   return;
-  // }
-
   isPaused = !isPaused;
 
-  // Ändere den Text des Knopfs basierend auf dem Pausenstatus
-  var currentTime = new Date().getTime()
   if (isPaused) {
-    pauseResumeButton.innerHTML = 'Continue';
-    pausedTime = currentTime;
+    pausedAt = Date.now();
+    pauseResumeButton.textContent = 'Continue';
   } else {
-    pauseResumeButton.innerHTML = 'Pause';
-    var stoppedTime = currentTime - pausedTime;
-    endTime += stoppedTime;
-    startTime += stoppedTime;
-    updateProgressBar();
+    var pausedFor = Date.now() - pausedAt;
+    startTime += pausedFor;
+    endTime += pausedFor;
+    pauseResumeButton.textContent = 'Pause';
+    tick();
   }
 }
 
 function speak(message) {
-  // Überprüfen, ob die Web Speech API vom Browser unterstützt wird
-  if ('speechSynthesis' in window) {
-    // Text-to-Speech Funktion
-    function textToSpeech(text) {
-      // Eine neue SpeechSynthesisUtterance-Instanz erstellen
-      var utterance = new SpeechSynthesisUtterance(text);
-
-      // Die Sprache für die Sprachausgabe festlegen (optional)
-      utterance.lang = 'en-US'; // Englisch (US)
-
-      // Die Sprachausgabe starten
-      speechSynthesis.speak(utterance);
-    }
-
-    // Beispielaufruf
-    textToSpeech(message);
-  } else {
-    console.error('Die Web Speech API wird in diesem Browser nicht unterstützt.');
+  if (!('speechSynthesis' in window)) {
+    return;
   }
+  var utterance = new SpeechSynthesisUtterance(message);
+  utterance.lang = 'en-US';
+  speechSynthesis.speak(utterance);
 }

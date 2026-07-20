@@ -2,36 +2,183 @@
 @import url(lib/toaster/toaster.css);
 @import url(lib/accordion/accordion.css);
 
+:root {
+  --color-bg: #1e2126;
+  --color-surface: #2a2e35;
+  --color-surface-raised: #333941;
+  --color-border: #454b54;
+  --color-border-strong: #5a616b;
+
+  --color-text: #e6e8ea;
+  --color-text-muted: #9aa1ab;
+  --color-text-inverse: #14161a;
+
+  --color-accent: #32cd32;
+  --color-accent-hover: #46e046;
+  --color-accent-dim: #2aa32a;
+  --color-danger: #cc5555;
+  --color-danger-hover: #e06666;
+  --color-focus: #32cd32;
+  --color-disabled: #5a616b;
+
+  /* backwards-compatible aliases used elsewhere */
+  --color-background: var(--color-surface);
+  --color-background--option: var(--color-surface);
+  --color-background--option--hover: #3a4048;
+  --color-text--normal: var(--color-text);
+  --color-text--grey: var(--color-text-muted);
+  --color-text--red: var(--color-danger);
+  --color-text--placeholder: var(--color-text-muted);
+
+  --border-radius--base: 8px;
+  --border-radius--small: 5px;
+  --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-2: 0 8px 28px rgba(0, 0, 0, 0.5);
+  --transition: 140ms ease;
+}
+
 * {
   box-sizing: border-box;
-
-  --color-background: #333333;
-  --color-border: lightgray;
-  --color-focus: #32cd32;
-  --color-background--option: #333333;
-  --color-background--option--hover: #cbd5e0a1;
-  --color-text--normal: #0c0c0c;
-  --color-text--grey: #24262c;
-  --color-text--red: #cc6666;
-  --color-text--placeholder: #ced4da;
-  --border-radius--base: 6px;
-  --border-radius--small: 4px;
-  --color-disabled: darkgray;
 }
 
-.dark-theme,
-.dark-theme dialog,
+body {
+  margin: 0;
+  padding: 24px 20px 48px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.dark-theme {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
+.dark-theme dialog {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
 .dark-theme input {
-  background-color: #333333;
-  color: lightgray;
+  background-color: var(--color-surface-raised);
+  color: var(--color-text);
 }
 
+h1 {
+  font-size: 1.9rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 20px;
+}
+
+/* ---------- Buttons ---------- */
+button {
+  appearance: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--color-text-inverse);
+  background: var(--color-accent);
+  border: none;
+  border-radius: var(--border-radius--base);
+  padding: 11px 20px;
+  margin: 4px;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition),
+    box-shadow var(--transition), opacity var(--transition);
+  box-shadow: var(--shadow-1);
+}
+
+button:hover {
+  background: var(--color-accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-2);
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-1);
+}
+
+button:disabled,
+button[disabled] {
+  background: var(--color-disabled);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+  opacity: 0.7;
+}
+
+/* Danger / cancel actions */
+button[onclick*="cancel" i],
+button[onclick*="Cancel" i] {
+  background: transparent;
+  color: var(--color-danger);
+  box-shadow: inset 0 0 0 1.5px var(--color-danger);
+}
+
+button[onclick*="cancel" i]:hover,
+button[onclick*="Cancel" i]:hover {
+  background: var(--color-danger);
+  color: #fff;
+  box-shadow: var(--shadow-2);
+}
+
+/* Secondary "close dialog" cancel buttons: neutral outline */
+button[onclick*="closeDialog" i] {
+  background: transparent;
+  color: var(--color-text);
+  box-shadow: inset 0 0 0 1.5px var(--color-border-strong);
+}
+
+button[onclick*="closeDialog" i]:hover {
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  box-shadow: inset 0 0 0 1.5px var(--color-border-strong), var(--shadow-1);
+}
+
+/* ---------- Start menu ---------- */
+#startMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 340px;
+  margin: 12vh auto 0;
+  padding: 28px 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-2);
+}
+
+#startMenu button {
+  margin: 0;
+  padding: 15px 20px;
+  font-size: 1.05rem;
+}
+
+#startMenu button:last-child {
+  background: transparent;
+  color: var(--color-accent);
+  box-shadow: inset 0 0 0 1.5px var(--color-accent-dim);
+}
+
+#startMenu button:last-child:hover {
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-2);
+}
+
+/* ---------- Forms ---------- */
 .has-error {
-  outline: 2px solid #cc0000;
+  outline: 2px solid var(--color-danger);
 }
 
 *:focus-visible {
-  outline: 2px solid #32cd32;
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
   border-radius: var(--border-radius--base);
 }
 
@@ -39,14 +186,36 @@ input:not([type="number"]).form-input {
   min-width: 140px;
 }
 
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-accent);
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+label {
+  color: var(--color-text-muted);
+}
+
 .form-field {
+  margin-bottom: 12px;
+
   .form-input {
-    margin: 4px;
-    padding: 6px 6px 6px 6px;
+    margin: 4px 0;
+    padding: 9px 11px;
     border-radius: var(--border-radius--base);
     border: 1px solid var(--color-border);
-    background: var(--color-background);
+    background: var(--color-surface-raised);
+    color: var(--color-text);
     max-width: 360px;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+
+  .form-input:focus {
+    border-color: var(--color-accent);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(50, 205, 50, 0.25);
   }
 
   &.disabled {
@@ -57,4 +226,18 @@ input:not([type="number"]).form-input {
       color: var(--color-disabled);
     }
   }
+}
+
+/* ---------- Dialogs ---------- */
+dialog {
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-2);
+  max-width: min(560px, 92vw);
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
 }

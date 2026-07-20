@@ -62,7 +62,6 @@ function fillTypeSelection(types) {
 function confirmExerciseRowInput() {
   acceptedOnce = true;
   if (validateExerciseRowInput() == false) {
-    console.warn("error");
     return;
   }
 
@@ -107,7 +106,6 @@ function confirmExerciseRowInput() {
         // ToDo: make it movable / either drag and drop or select 2 that change (like ttgl in extra dialog)
 
         var rotesQuadrat = document.createElement("div");
-        rotesQuadrat.textContent = id;
         rotesQuadrat.classList.add("rotes-quadrat");
         rotesQuadrat.style.backgroundColor = "#" + id.slice(-6);
         newRow.appendChild(rotesQuadrat);
@@ -170,8 +168,7 @@ function confirmExerciseRowInput() {
       }
       closeDialog("exercise-template-dialog");
     } else {
-      console.log("No matches");
-      // Toaster: Show error: no exercies match the conditions
+      toast("No exercises match the selected conditions", "error", 5);
     }
   });
 }
@@ -212,8 +209,8 @@ function validateExerciseRowInput() {
 
   var minDifficultyElement = document.getElementById("min-difficulty");
   var maxDifficultyElement = document.getElementById("max-difficulty");
-  var minDifficulty = minDifficultyElement.value;
-  var maxDifficulty = maxDifficultyElement.value;
+  var minDifficulty = parseInt(minDifficultyElement.value);
+  var maxDifficulty = parseInt(maxDifficultyElement.value);
 
   if (minDifficulty == null || minDifficulty > maxDifficulty) {
     hasError = true;
@@ -235,8 +232,8 @@ function validateExerciseRowInput() {
 function updateMatchingExercises() {
   var selectedMuscles = getSelectValuesBySelectId("muscle-select");
   var selectedTypes = getSelectValuesBySelectId("type-select");
-  var minDifficulty = document.getElementById("min-difficulty").value;
-  var maxDifficulty = document.getElementById("max-difficulty").value;
+  var minDifficulty = parseInt(document.getElementById("min-difficulty").value);
+  var maxDifficulty = parseInt(document.getElementById("max-difficulty").value);
 
   validateExerciseRowInput();
 
@@ -288,21 +285,14 @@ function getMatchingExercisesPromise(
   }
 
   return getDataPromise().then((data) =>
-    Object.values(data.exercises).filter((exercise) => {
-      var areMusclesMatching = selectedMuscles.every((selectedMuscle) => exercise.muscles.some(
-        (muscle) =>
-          muscle.name == selectedMuscle ||
-          (muscle.partOf != null && muscle.partOf.includes(selectedMuscle))
-      ));
-      var areTypesMatching =
-        selectedTypes.length == 0 ||
-        selectedTypes.every((type) => exercise.types.includes(type));
-      var isDifficultyValid =
-        exercise.difficulty >= minDifficulty &&
-        exercise.difficulty <= maxDifficulty;
-      return areMusclesMatching && areTypesMatching && isDifficultyValid;
-    })
-  ).then(data => { console.log(data); return data; });
+    findMatchingExercises(
+      data,
+      selectedMuscles,
+      selectedTypes,
+      minDifficulty,
+      maxDifficulty
+    )
+  );
 }
 
 function saveWorkout() {
@@ -323,9 +313,8 @@ function saveWorkout() {
   }
 
   if (existingWorkouts.hasOwnProperty(enteredName)) {
-    console.warn("The name already exists.");
     nameInput.classList.add("has-error");
-    // Toaster: show error to user
+    toast("A workout with this name already exists", "error", 5);
     return;
   }
   nameInput.classList.remove("has-error");
@@ -344,8 +333,6 @@ function saveWorkout() {
     parseInt(document.getElementById("set-rest-time-input").value),
     parseInt(document.getElementById("circuit-count-input").value)
   );
-
-  console.log(existingWorkouts[enteredName]);
 
   saveObject("workouts", existingWorkouts);
   closeDialog("save-dialog");

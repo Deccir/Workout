@@ -169,6 +169,54 @@ async function loadJson(path) {
   }
 }
 
+function findMatchingExercises(data, selectedMuscles, selectedTypes, minDifficulty, maxDifficulty) {
+  return Object.values(data.exercises).filter((exercise) => {
+    var areMusclesMatching = selectedMuscles.every((selectedMuscle) =>
+      exercise.muscles.some(
+        (muscle) =>
+          muscle.name == selectedMuscle ||
+          (muscle.partOf != null && muscle.partOf.includes(selectedMuscle))
+      )
+    );
+    var areTypesMatching =
+      selectedTypes.length == 0 ||
+      selectedTypes.every((type) => exercise.types.includes(type));
+    var isDifficultyValid =
+      exercise.difficulty >= minDifficulty &&
+      exercise.difficulty <= maxDifficulty;
+    return areMusclesMatching && areTypesMatching && isDifficultyValid;
+  });
+}
+
+function buildWorkoutFromTemplate(template, data) {
+  var exerciseNames = [];
+  var circuits = template.circuitCount || 1;
+
+  for (var circuit = 0; circuit < circuits; circuit++) {
+    template.exerciseTemplates.forEach((exerciseTemplate) => {
+      var matches = findMatchingExercises(
+        data,
+        exerciseTemplate.muscles,
+        exerciseTemplate.types,
+        exerciseTemplate.difficultyMin,
+        exerciseTemplate.difficultyMax
+      );
+      if (matches.length == 0) {
+        return;
+      }
+      var chosen = matches[Math.floor(Math.random() * matches.length)];
+      exerciseNames.push(chosen.name);
+    });
+  }
+
+  return new Workout(
+    template.name,
+    exerciseNames,
+    template.exerciseTime,
+    template.restTime
+  );
+}
+
 function capitalizeWords(inputString) {
   return inputString.replace(/\b\w/g, (match) => match.toUpperCase());
 }
