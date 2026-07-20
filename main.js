@@ -14,7 +14,7 @@ function difficultyToColor(difficulty) {
       return '#ff4600';
     case 6:
       return '#C70039';
-    case 6:
+    case 7:
       return '#000000';
   }
 }

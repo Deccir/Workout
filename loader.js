@@ -1,3 +1,5 @@
+const ASSET_BASE = new URL('.', document.currentScript.src).href;
+
 class Exercise {
   constructor(name, muscles, difficulty, link, types) {
     this.name = name;
@@ -67,7 +69,7 @@ function _getMusclesPromise() {
     window.global = {};
   }
   if (window.global.musclesPromise == null) {
-    window.global.musclesPromise = loadJson("/assets/muscles.json").then(
+    window.global.musclesPromise = loadJson(ASSET_BASE + "assets/muscles.json").then(
       (data) => initializeMuscles(data)
     );
   }
@@ -80,7 +82,7 @@ function _getTypePromise() {
     window.global = {};
   }
   if (window.global.typePromise == null) {
-    window.global.typePromise = loadJson("/assets/types.json").then((data) =>
+    window.global.typePromise = loadJson(ASSET_BASE + "assets/types.json").then((data) =>
       initializeTypes(data)
     );
   }
@@ -93,7 +95,7 @@ function _getExercisePromise(typeList, muscleList) {
     window.global = {};
   }
   if (window.global.exercisesPromise == null) {
-    window.global.exercisesPromise = loadJson("/assets/exercises.json").then(
+    window.global.exercisesPromise = loadJson(ASSET_BASE + "assets/exercises.json").then(
       (data) => initializeExercises(data, typeList, muscleList)
     );
   }

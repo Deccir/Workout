@@ -2,13 +2,13 @@
     "name": "Deccirs Workout Shuffle",
     "short_name": "Workout Shuffle",
     "description": "A simple application that offers random generated workouts which can be configured to the users needs.",
-    "start_url": "/",
+    "start_url": ".",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#000000",
     "icons": [
         {
-            "src": "/assets/icon.png",
+            "src": "assets/icon.png",
             "sizes": "192x192",
             "type": "image/png"
         }

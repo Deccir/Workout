@@ -1,7 +1,11 @@
+// App root, derived from this script's location so it works at any deploy path
+// (site root or a GitHub Pages project subdir like /Workout/).
+const APP_BASE = new URL('.', document.currentScript.src).href;
+
 PAGES = {
-  StartMenu: '/',
-  CreateTraining: '/pages/createWorkoutTemplate/createWorkoutTemplate',
-  Training: '/pages/workout/workout'
+  StartMenu: APP_BASE,
+  CreateTraining: APP_BASE + 'pages/createWorkoutTemplate/createWorkoutTemplate.html',
+  Training: APP_BASE + 'pages/workout/workout.html'
 }
 
 function showPage(pageLink) {
