@@ -165,7 +165,8 @@
         "muscles": ["shoulders", "full-back"],
         "difficulty": 1,
         "link": "https://www.calimove.com/courses/1467532/lectures/40595600",
-        "types": ["mobility", "stretch"]
+        "types": ["mobility", "stretch"],
+        "equipment": ["pullup-bar"]
     },
     {
         "name": "Standing Scale touch circle",
@@ -263,7 +264,8 @@
         "muscles": ["shoulders", "grip"],
         "difficulty": 2,
         "link": "https://www.calimove.com/courses/1467532/lectures/40595601",
-        "types": ["strength", "mobility", "stretch"]
+        "types": ["strength", "mobility", "stretch"],
+        "equipment": ["pullup-bar"]
     },
     {
         "name": "Kimura",
@@ -298,7 +300,8 @@
         "muscles": ["shoulders", "grip", "upper-back"],
         "difficulty": 3,
         "link": "https://www.calimove.com/courses/1467532/lectures/40595602",
-        "types": ["strength"]
+        "types": ["strength"],
+        "equipment": ["pullup-bar"]
     },
     {
         "name": "Back Bridge Walk",
@@ -389,28 +392,32 @@
         "muscles": ["upper-back", "arms-pull", "grip"],
         "difficulty": 6,
         "link": "",
-        "types": ["strength"]
+        "types": ["strength"],
+        "equipment": ["pullup-bar"]
     },
     {
         "name": "Commando Pull up",
         "muscles": ["arms-pull", "full-back", "grip"],
         "difficulty": 7,
         "link": "",
-        "types": ["strength"]
+        "types": ["strength"],
+        "equipment": ["pullup-bar"]
     },
     {
         "name": "Towel Pull up",
         "muscles": ["arms-pull", "full-back", "grip"],
         "difficulty": 7,
         "link": "",
-        "types": ["strength"]
+        "types": ["strength"],
+        "equipment": ["pullup-bar"]
     },
     {
         "name": "Chin up",
         "muscles": ["arms-pull", "full-back", "grip"],
         "difficulty": 6,
         "link": "",
-        "types": ["strength"]
+        "types": ["strength"],
+        "equipment": ["pullup-bar"]
     },
     {
         "name": "Wrist lifts",

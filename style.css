@@ -256,6 +256,15 @@ button[onclick*="cancel" i]:hover {
   font-size: 1.05rem;
 }
 
+.data-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.data-actions button {
+  flex: 1;
+}
+
 #start-menu button:last-child {
   background: transparent;
   color: var(--color-accent);
@@ -292,6 +301,18 @@ button[onclick*="cancel" i]:hover {
   margin: 0;
   padding: 8px 14px;
   font-size: 0.9rem;
+}
+
+.row-warning {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-danger);
+  white-space: nowrap;
+}
+
+.workout-row--broken .workout-name {
+  color: var(--color-text-muted);
 }
 
 /* Danger button variant (delete rows, confirm-delete action) */

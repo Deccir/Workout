@@ -44,6 +44,11 @@
     <button class="secondary" onclick="showPage(PAGES.CreateWorkoutTemplate)">Create new Workout Template</button>
     <button class="secondary" onclick="showPage(PAGES.WorkoutEditor)">Manually create Workout</button>
     <button class="secondary" onclick="showPage(PAGES.ManageExercises)">Manage Exercises</button>
+    <div class="data-actions">
+      <button class="secondary" onclick="exportData()">Export Data</button>
+      <button class="secondary" onclick="document.getElementById('import-file').click()">Import Data</button>
+    </div>
+    <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importData(event)">
     <button onclick="openDialog('info-dialog')">Info</button>
   </div>
 

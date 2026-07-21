@@ -1,17 +1,22 @@
 const ASSET_BASE = new URL('.', document.currentScript.src).href;
 
 class Exercise {
-  constructor(name, muscles, difficulty, link, types) {
+  constructor(name, muscles, difficulty, link, types, equipment) {
     this.name = name;
     this.muscles = muscles;
     this.difficulty = difficulty;
     this.link = link;
     this.types = types;
+    // Names of equipment this exercise requires (empty = bodyweight only).
+    this.equipment = equipment || [];
   }
 }
 
 class WorkoutTemplate {
-  constructor(name, exerciseTemplates, exerciseTime, restTime, setCount, setRestTime, circuitCount) {
+  // `availableEquipment` is the equipment the user has for this workout; the
+  // shuffler only picks exercises whose required equipment is all available.
+  // null means "no equipment filter" (older templates before this field).
+  constructor(name, exerciseTemplates, exerciseTime, restTime, setCount, setRestTime, circuitCount, availableEquipment) {
     this.name = name;
     this.exerciseTemplates = exerciseTemplates;
     this.exerciseTime = exerciseTime;
@@ -19,13 +24,15 @@ class WorkoutTemplate {
     this.setCount = setCount;
     this.setRestTime = setCount == 1 ? null : setRestTime;
     this.circuitCount = circuitCount;
+    this.availableEquipment = availableEquipment || [];
   }
 }
 
 class ExerciseTemplate {
   // Each overwrite* value is null when that parameter is not overridden for this
-  // exercise (the workout-level value is used instead).
-  constructor(muscles, types, difficultyMin, difficultyMax, overwriteTime, overwriteRestTime, overwriteSetCount, overwriteSetRestTime) {
+  // exercise (the workout-level value is used instead). `excludedMuscles` filters
+  // out any exercise that also targets one of those muscle groups.
+  constructor(muscles, types, difficultyMin, difficultyMax, overwriteTime, overwriteRestTime, overwriteSetCount, overwriteSetRestTime, excludedMuscles) {
     this.muscles = muscles;
     this.types = types;
     this.difficultyMin = difficultyMin;
@@ -34,6 +41,7 @@ class ExerciseTemplate {
     this.overwriteRestTime = overwriteRestTime;
     this.overwriteSetCount = overwriteSetCount;
     this.overwriteSetRestTime = overwriteSetRestTime;
+    this.excludedMuscles = excludedMuscles || [];
   }
 }
 
@@ -79,15 +87,26 @@ function loadAppData() {
   if (cache.appData == null) {
     cache.appData = loadTypes().then((types) =>
       loadMuscles().then((muscles) =>
-        loadExercises(types, muscles).then((exercises) => ({
-          types: types,
-          muscles: muscles,
-          exercises: exercises,
-        }))
+        loadEquipment().then((equipment) =>
+          loadExercises(types, muscles).then((exercises) => ({
+            types: types,
+            muscles: muscles,
+            equipment: equipment,
+            exercises: exercises,
+          }))
+        )
       )
     );
   }
   return cache.appData;
+}
+
+function loadEquipment() {
+  var cache = dataCache();
+  if (cache.equipment == null) {
+    cache.equipment = loadJson(ASSET_BASE + "assets/equipment.json").then((data) => data.slice());
+  }
+  return cache.equipment;
 }
 
 function loadTypes() {
@@ -175,7 +194,8 @@ function buildExerciseIndex(data, types, muscles) {
       /*exercise.link ||*/ "/assets/homer.gif",
       exercise.types
         .map((typeName) => types.find((type) => type.name == typeName))
-        .filter(Boolean)
+        .filter(Boolean),
+      (exercise.equipment || []).slice()
     );
   });
 
@@ -196,16 +216,28 @@ async function loadJson(path) {
   }
 }
 
+// True when an exercise targets the given muscle group, honouring the muscle
+// hierarchy (a selection of "arms" also matches "arms-pull").
+function exerciseTargetsMuscle(exercise, muscleName) {
+  return exercise.muscles.some(
+    (muscle) =>
+      muscle.name == muscleName ||
+      (muscle.partOf != null && muscle.partOf.includes(muscleName))
+  );
+}
+
 // Return every exercise matching the selected muscles, types and difficulty
-// range. An empty type selection matches any type.
-function findMatchingExercises(data, selectedMuscles, selectedTypes, minDifficulty, maxDifficulty) {
+// range. An empty type selection matches any type. `excludedMuscles` filters
+// out exercises that also target any of those groups; `availableEquipment`
+// (when non-null) keeps only exercises whose required equipment is all present.
+function findMatchingExercises(data, selectedMuscles, selectedTypes, minDifficulty, maxDifficulty, excludedMuscles, availableEquipment) {
+  excludedMuscles = excludedMuscles || [];
   return Object.values(data.exercises).filter((exercise) => {
     var musclesMatch = selectedMuscles.every((selectedMuscle) =>
-      exercise.muscles.some(
-        (muscle) =>
-          muscle.name == selectedMuscle ||
-          (muscle.partOf != null && muscle.partOf.includes(selectedMuscle))
-      )
+      exerciseTargetsMuscle(exercise, selectedMuscle)
+    );
+    var notExcluded = !excludedMuscles.some((excludedMuscle) =>
+      exerciseTargetsMuscle(exercise, excludedMuscle)
     );
     var typesMatch =
       selectedTypes.length == 0 ||
@@ -215,7 +247,10 @@ function findMatchingExercises(data, selectedMuscles, selectedTypes, minDifficul
     var difficultyInRange =
       exercise.difficulty >= minDifficulty &&
       exercise.difficulty <= maxDifficulty;
-    return musclesMatch && typesMatch && difficultyInRange;
+    var equipmentAvailable =
+      availableEquipment == null ||
+      exercise.equipment.every((item) => availableEquipment.includes(item));
+    return musclesMatch && notExcluded && typesMatch && difficultyInRange && equipmentAvailable;
   });
 }
 
@@ -253,7 +288,11 @@ function buildSlotsFromTemplate(template, data) {
         exerciseTemplate.muscles,
         exerciseTemplate.types,
         exerciseTemplate.difficultyMin,
-        exerciseTemplate.difficultyMax
+        exerciseTemplate.difficultyMax,
+        exerciseTemplate.excludedMuscles,
+        template.availableEquipment && template.availableEquipment.length
+          ? template.availableEquipment
+          : null
       );
       slots.push({
         exerciseTemplate: exerciseTemplate,
@@ -264,6 +303,27 @@ function buildSlotsFromTemplate(template, data) {
   }
 
   return slots;
+}
+
+// A template is runnable only when every one of its exercise templates still
+// matches at least one exercise (editing/deleting exercises can leave a
+// template with an unfillable slot). Uses the same filters as the shuffler.
+function isTemplateRunnable(template, data) {
+  var equipment =
+    template.availableEquipment && template.availableEquipment.length
+      ? template.availableEquipment
+      : null;
+  return (template.exerciseTemplates || []).every((exerciseTemplate) =>
+    findMatchingExercises(
+      data,
+      exerciseTemplate.muscles,
+      exerciseTemplate.types,
+      exerciseTemplate.difficultyMin,
+      exerciseTemplate.difficultyMax,
+      exerciseTemplate.excludedMuscles,
+      equipment
+    ).length > 0
+  );
 }
 
 // Turn slots with chosen exercise names into a concrete WorkoutExercise list.

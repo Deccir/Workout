@@ -68,8 +68,15 @@ window.addEventListener("load", () => {
     .then((data) => {
       fillMuscleSelection(data.muscles);
       fillTypeSelection(data.types);
+      fillSelection("exclude-muscle-select", data.muscles);
+      fillSelection("equipment-select", data.equipment);
     })
-    .then(() => initializeMultiSelectDropdown());
+    .then(() => {
+      initializeMultiSelectDropdown();
+      // Restore an edited template only after the dropdowns exist, so the
+      // available-equipment selection can be re-checked.
+      loadWorkoutForEdit();
+    });
 
   var minDifficulty = document.getElementById("min-difficulty");
   minDifficulty.addEventListener("change", updateMatchingExercises);
@@ -85,6 +92,10 @@ window.addEventListener("load", () => {
   resetSelectedValues(typeSelect);
   typeSelect.addEventListener("change", updateMatchingExercises);
 
+  var excludeMuscleSelect = document.getElementById("exclude-muscle-select");
+  resetSelectedValues(excludeMuscleSelect);
+  excludeMuscleSelect.addEventListener("change", updateMatchingExercises);
+
   document.getElementById("exercise-template-dialog")
     .addEventListener("close", () => {
       resetRowDialog();
@@ -92,8 +103,6 @@ window.addEventListener("load", () => {
 
   Array.from(document.querySelectorAll('input[type="number"]'))
     .forEach(input => input.addEventListener("change", validateNumberInput));
-
-  loadWorkoutForEdit();
 });
 
 // When opened with ?template=<name>, load that saved template so it can be edited.
@@ -122,6 +131,11 @@ function loadWorkoutForEdit() {
   }
   onSetCountChanged({ target: document.getElementById("set-count-input") });
 
+  setSelectedValues(
+    document.getElementById("equipment-select"),
+    template.availableEquipment || []
+  );
+
   template.exerciseTemplates.forEach((exerciseTemplate) => {
     addExerciseRow(
       new ExerciseTemplate(
@@ -132,7 +146,8 @@ function loadWorkoutForEdit() {
         exerciseTemplate.overwriteTime,
         exerciseTemplate.overwriteRestTime,
         exerciseTemplate.overwriteSetCount,
-        exerciseTemplate.overwriteSetRestTime
+        exerciseTemplate.overwriteSetRestTime,
+        exerciseTemplate.excludedMuscles
       )
     );
   });
@@ -160,6 +175,18 @@ function fillTypeSelection(types) {
   });
 }
 
+// Generic: fill a <select> with { name } items (used for exclude-muscle and
+// equipment selects).
+function fillSelection(selectId, items) {
+  var select = document.getElementById(selectId);
+  items.forEach((item) => {
+    var option = document.createElement("option");
+    option.value = item.name;
+    option.textContent = capitalizeWords(item.name);
+    select.appendChild(option);
+  });
+}
+
 //#endregion
 
 function confirmExerciseRowInput() {
@@ -170,6 +197,7 @@ function confirmExerciseRowInput() {
 
   var selectedMuscles = getSelectValuesBySelectId("muscle-select");
   var selectedTypes = getSelectValuesBySelectId("type-select");
+  var excludedMuscles = getSelectValuesBySelectId("exclude-muscle-select");
   var minDifficulty = parseInt(document.getElementById("min-difficulty").value);
   var maxDifficulty = parseInt(document.getElementById("max-difficulty").value);
 
@@ -177,7 +205,8 @@ function confirmExerciseRowInput() {
     selectedMuscles,
     selectedTypes,
     minDifficulty,
-    maxDifficulty
+    maxDifficulty,
+    excludedMuscles
   ).then((matchingExercises) => {
     if (matchingExercises != null && matchingExercises.length > 0) {
       var overwrites = readOverwriteValues();
@@ -186,6 +215,7 @@ function confirmExerciseRowInput() {
         var exerciseTemplate = preparedExerciseTemplates[editRowId];
         exerciseTemplate.muscles = selectedMuscles;
         exerciseTemplate.types = selectedTypes;
+        exerciseTemplate.excludedMuscles = excludedMuscles;
         exerciseTemplate.difficultyMin = minDifficulty;
         exerciseTemplate.difficultyMax = maxDifficulty;
         exerciseTemplate.overwriteTime = overwrites.overwriteTime;
@@ -207,7 +237,8 @@ function confirmExerciseRowInput() {
             overwrites.overwriteTime,
             overwrites.overwriteRestTime,
             overwrites.overwriteSetCount,
-            overwrites.overwriteSetRestTime
+            overwrites.overwriteSetRestTime,
+            excludedMuscles
           )
         );
       }
@@ -253,6 +284,12 @@ function exerciseRowSummary(exerciseTemplate) {
     "–" +
     exerciseTemplate.difficultyMax +
     ")";
+  var excluded = (exerciseTemplate.excludedMuscles || [])
+    .map(capitalizeWords)
+    .join(", ");
+  if (excluded) {
+    summary += " · avoid " + excluded;
+  }
   return summary;
 }
 
@@ -392,6 +429,7 @@ function validateExerciseRowInput() {
 function updateMatchingExercises() {
   var selectedMuscles = getSelectValuesBySelectId("muscle-select");
   var selectedTypes = getSelectValuesBySelectId("type-select");
+  var excludedMuscles = getSelectValuesBySelectId("exclude-muscle-select");
   var minDifficulty = parseInt(document.getElementById("min-difficulty").value);
   var maxDifficulty = parseInt(document.getElementById("max-difficulty").value);
 
@@ -401,7 +439,8 @@ function updateMatchingExercises() {
     selectedMuscles,
     selectedTypes,
     minDifficulty,
-    maxDifficulty
+    maxDifficulty,
+    excludedMuscles
   ).then((matchingExercises) => {
     matchingExercises ??= [];
     document.getElementById("matching-exercises").textContent =
@@ -424,6 +463,10 @@ function editExerciseRowInput(exerciseTemplate, rowElement) {
   setSelectedValues(
     document.getElementById("type-select"),
     exerciseTemplate.types
+  );
+  setSelectedValues(
+    document.getElementById("exclude-muscle-select"),
+    exerciseTemplate.excludedMuscles || []
   );
 
   setOverwriteField("overwrite-exercise-time", exerciseTemplate.overwriteTime);
@@ -450,7 +493,8 @@ function getMatchingExercisesForSelection(
   selectedMuscles,
   selectedTypes,
   minDifficulty,
-  maxDifficulty
+  maxDifficulty,
+  excludedMuscles
 ) {
   if (
     selectedMuscles.length == 0 ||
@@ -466,7 +510,8 @@ function getMatchingExercisesForSelection(
       selectedMuscles,
       selectedTypes,
       minDifficulty,
-      maxDifficulty
+      maxDifficulty,
+      excludedMuscles
     )
   );
 }
@@ -514,7 +559,8 @@ function saveWorkout() {
     readIntInput("rest-time-input"),
     readIntInput("set-count-input"),
     readIntInput("set-rest-time-input"),
-    readIntInput("circuit-count-input")
+    readIntInput("circuit-count-input"),
+    getSelectValuesBySelectId("equipment-select")
   );
 
   saveToStorage("templates", existingWorkouts);
@@ -541,6 +587,7 @@ function onSetCountChanged(event) {
 function resetRowDialog() {
   resetSelectedValues(document.getElementById("muscle-select"));
   resetSelectedValues(document.getElementById("type-select"));
+  resetSelectedValues(document.getElementById("exclude-muscle-select"));
   document.getElementById("min-difficulty").value = 0;
   document.getElementById("max-difficulty").value = 8;
 

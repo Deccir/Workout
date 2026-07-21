@@ -101,7 +101,12 @@ function buildPhases(workout) {
     }
 
     if (exerciseIndex < exerciseCount - 1 && exercise.restTime > 0) {
-      result.push({ type: 'rest', seconds: exercise.restTime });
+      result.push({
+        type: 'rest',
+        seconds: exercise.restTime,
+        prevName: exercise.name,
+        nextName: workout.exercises[exerciseIndex + 1].name,
+      });
     }
   });
 
@@ -131,7 +136,7 @@ function runPhase() {
   } else if (phase.type === 'setrest') {
     runRestPhase('Rest — next set', phase.seconds);
   } else {
-    runRestPhase('Rest', phase.seconds);
+    runExerciseRestPhase(phase);
   }
 }
 
@@ -178,6 +183,79 @@ function runRestPhase(label, seconds) {
   progressFill.style.backgroundColor = REST_COLOR;
   speak('Rest');
   startTimer(seconds * 1000);
+}
+
+// Rest between exercises: suggest an easy filler (mobility/balance/stretch/yoga/
+// focus) that avoids the muscles of the exercise just finished and the next one.
+function runExerciseRestPhase(phase) {
+  progressFill.style.backgroundColor = REST_COLOR;
+
+  var filler = pickFillerExercise(phase.prevName, phase.nextName);
+  if (filler != null) {
+    showImage(filler, filler.name);
+    exerciseLabel.textContent = 'Rest — try: ' + filler.name;
+    speak('Rest. Try ' + filler.name);
+  } else {
+    exerciseLabel.textContent = 'Rest';
+    speak('Rest');
+  }
+
+  startTimer(phase.seconds * 1000);
+}
+
+var FILLER_TYPES = ['mobility', 'balance', 'stretch', 'yoga', 'focus'];
+var FILLER_MAX_DIFFICULTY = 2;
+
+// All muscle groups an exercise touches, expanded to include their parent groups
+// (so "arms-pull" also counts as "arms") for overlap testing.
+function muscleTargetSet(name) {
+  var set = new Set();
+  var exercise = exerciseData(name);
+  if (exercise == null) {
+    return set;
+  }
+  exercise.muscles.forEach((muscle) => {
+    set.add(muscle.name);
+    if (muscle.partOf != null) {
+      muscle.partOf.forEach((parent) => set.add(parent));
+    }
+  });
+  return set;
+}
+
+// Pick a random easy, equipment-free filler exercise whose target muscles don't
+// overlap the previous or next exercise. Returns null when nothing qualifies.
+function pickFillerExercise(prevName, nextName) {
+  if (exercises == null) {
+    return null;
+  }
+
+  var avoid = muscleTargetSet(prevName);
+  muscleTargetSet(nextName).forEach((muscle) => avoid.add(muscle));
+
+  var pool = Object.values(exercises).filter((exercise) => {
+    if (exercise.difficulty > FILLER_MAX_DIFFICULTY) {
+      return false;
+    }
+    if (exercise.equipment.length > 0) {
+      return false;
+    }
+    if (!exercise.types.some((type) => FILLER_TYPES.includes(type.name))) {
+      return false;
+    }
+    var overlaps = exercise.muscles.some((muscle) => {
+      if (avoid.has(muscle.name)) {
+        return true;
+      }
+      return muscle.partOf != null && muscle.partOf.some((parent) => avoid.has(parent));
+    });
+    return !overlaps;
+  });
+
+  if (pool.length == 0) {
+    return null;
+  }
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function finishWorkout() {

@@ -16,6 +16,7 @@ window.addEventListener("load", () => {
     .then((data) => {
       fillSelect("muscle-select", data.muscles);
       fillSelect("type-select", data.types);
+      fillSelect("equipment-select", data.equipment);
     })
     .then(() => initializeMultiSelectDropdown());
 
@@ -109,6 +110,10 @@ function exerciseSummary(exercise) {
     summary += " — " + types;
   }
   summary += " (difficulty " + exercise.difficulty + ")";
+  var equipment = (exercise.equipment || []).map(capitalizeWords).join(", ");
+  if (equipment) {
+    summary += " · " + equipment;
+  }
   return summary;
 }
 
@@ -137,6 +142,7 @@ function openEditDialog(exercise) {
   document.getElementById("link-input").value = exercise.link || "";
   setSelectedValues(document.getElementById("muscle-select"), exercise.muscles || []);
   setSelectedValues(document.getElementById("type-select"), exercise.types || []);
+  setSelectedValues(document.getElementById("equipment-select"), exercise.equipment || []);
   openDialog("exercise-dialog");
 }
 
@@ -171,6 +177,7 @@ function saveExercise() {
     difficulty: Math.min(8, readIntInput("difficulty-input")),
     link: document.getElementById("link-input").value.trim(),
     types: types,
+    equipment: getSelectValuesBySelectId("equipment-select"),
   };
 
   // On rename, drop the old record before writing the new one.
@@ -191,6 +198,7 @@ function resetDialog() {
   document.getElementById("link-input").value = "";
   resetSelectedValues(document.getElementById("muscle-select"));
   resetSelectedValues(document.getElementById("type-select"));
+  resetSelectedValues(document.getElementById("equipment-select"));
   editingName = null;
 }
 
